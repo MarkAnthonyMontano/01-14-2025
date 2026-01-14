@@ -17063,8 +17063,8 @@ app.get("/api/year-levels", async (req, res) => {
   }
 });
 
-app.get("/api/programs/availability/:yearId", async (req, res) => {
-  const { yearId } = req.params;
+app.get("/api/programs/availability/:yearId/:semesterId", async (req, res) => {
+  const { yearId, semesterId } = req.params;
 
   try {
     // Step 1: Get all programs from db3
@@ -17093,10 +17093,10 @@ app.get("/api/programs/availability/:yearId", async (req, res) => {
         COUNT(ap.applied_id) AS total_applicants
       FROM program_slots ps
       LEFT JOIN applied_programs ap 
-        ON ap.program_id = ps.program_id AND ap.year_id = ?
+        ON ap.program_id = ps.program_id AND ap.year_id = ? AND ap.semester_id = ?
       WHERE ps.program_id IN (?)
       GROUP BY ps.program_id, ps.max_slots
-    `, [yearId, programIds.length ? programIds : [0]]);
+    `, [yearId, semesterId, programIds.length ? programIds : [0]]);
 
     // Step 3: Merge data
     const merged = programs.map(p => {

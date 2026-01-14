@@ -33,7 +33,8 @@ const SLOT_OPTIONS = generateSlotOptions(10, 500, 10);
 
 
 const ProgramSlotLimit = () => {
-    const [yearId, setYearId] = useState("");
+    const [yearId, setYearId] = useState(""); 
+    const [semesterId, setSemesterId] = useState("");  
     const [programs, setPrograms] = useState([]);
     const [slots, setSlots] = useState([]);
     const [selectedProgram, setSelectedProgram] = useState("");
@@ -154,8 +155,8 @@ const ProgramSlotLimit = () => {
     }, []);
 
     useEffect(() => {
-        if (yearId) fetchSlotSummary();
-    }, [yearId]);
+      fetchSlotSummary();
+    }, [yearId, semesterId]);
 
     const fetchPrograms = async () => {
         const res = await axios.get(`${API_BASE_URL}/api/programs`);
@@ -163,28 +164,59 @@ const ProgramSlotLimit = () => {
     };
 
     const fetchSlotSummary = async () => {
-        const res = await axios.get(`${API_BASE_URL}/api/programs/availability/${yearId}`);
-        setSlots(res.data);
+      if (!yearId || !semesterId) return;
+    
+      const res = await axios.get(
+        `${API_BASE_URL}/api/programs/availability/${yearId}/${semesterId}`
+      );
+      setSlots(res.data);
     };
 
     const [schoolYears, setSchoolYears] = useState([]);
+    const [semesters, setSchoolSemester] = useState([]);
 
     useEffect(() => {
-        fetchSchoolYears();
-    }, []);
+        axios
+            .get(`${API_BASE_URL}/get_school_year/`)
+            .then((res) => setSchoolYears(res.data))
+            .catch((err) => console.error(err));
+    }, [])
 
-    const fetchSchoolYears = async () => {
-        const res = await axios.get(`${API_BASE_URL}/api/school-years`);
-        setSchoolYears(res.data);
+    useEffect(() => {
+        axios
+            .get(`${API_BASE_URL}/get_school_semester/`)
+            .then((res) => setSchoolSemester(res.data))
+            .catch((err) => console.error(err));
+    }, [])
 
-        // auto-select active year
-        const active = res.data.find(y => y.status === 1);
-        if (active) {
-            setYearId(active.year_id);
-        }
+useEffect(() => {
+  fetchActiveSchoolYear();
+}, []);
+
+
+    const fetchActiveSchoolYear = async () => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/active_school_year`);
+
+    if (res.data.length > 0) {
+      const active = res.data[0];
+      setYearId(active.year_id);
+      setSemesterId(active.semester_id);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+    const handleSchoolYearChange = (event) => {
+        setSelectedSchoolYear(event.target.value);
     };
 
-
+    const handleSchoolSemesterChange = (event) => {
+        setSelectedSchoolSemester(event.target.value);
+    };
+    
     const saveSlotLimit = async () => {
         await axios.post(`${API_BASE_URL}/api/program-slots`, {
             year_id: yearId,
@@ -252,20 +284,29 @@ const ProgramSlotLimit = () => {
                 <Box display="flex" gap={2}>
                     <FormControl fullWidth>
                         <Select
-                            value={yearId}
-                            onChange={(e) => setYearId(e.target.value)}
-                            displayEmpty
+                          value={yearId}
+                          onChange={(e) => setYearId(e.target.value)}
                         >
-                            <MenuItem value="">Select School Year</MenuItem>
-                            {schoolYears.map((y) => (
-                                <MenuItem key={y.year_id} value={y.year_id}>
-                                    {y.year_description}
-                                    {y.status === 1 ? " (ACTIVE)" : ""}
-                                </MenuItem>
-                            ))}
+                          {schoolYears.map((sy) => (
+                            <MenuItem key={sy.year_id} value={sy.year_id}>
+                              {sy.current_year} - {sy.next_year}
+                            </MenuItem>
+                          ))}
                         </Select>
                     </FormControl>
-
+                                        
+                    <FormControl fullWidth>
+                        <Select
+                          value={semesterId}
+                          onChange={(e) => setSemesterId(e.target.value)}
+                        >
+                          {semesters.map((sem) => (
+                            <MenuItem key={sem.semester_id} value={sem.semester_id}>
+                              {sem.semester_description}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                    </FormControl>
 
                     <FormControl fullWidth>
                         <Select
