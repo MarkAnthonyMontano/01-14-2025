@@ -141,7 +141,7 @@ const StudentFacultyEvaluation = () => {
 
   const handleSelectedCourse = (event) => setSelectedCourse(event.target.value);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
-const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const handleAnswerChange = (question_id, value) =>
     setAnswers((prev) => ({ ...prev, [question_id]: value }));
 
@@ -203,106 +203,118 @@ const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   });
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
-        backgroundColor: "transparent",
-        paddingRight: 3
-      }}
-    >
-      {/* Page Title */}
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, color: titleColor }}>
-        Faculty Evaluation Form
-      </Typography>
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+      {/* Header */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          mb: 2,
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: "bold",
+            color: titleColor,
+            fontSize: "36px",
+          }}
+        >
+          FACULTY EVALUATION FORM
+        </Typography>
+      </Box>
+      <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+      <br />
 
       {/* Choose Course Panel */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {/* CHOOSE COURSE PANEL */}
         <Grid item xs={12} md={6}>
-    <Paper
-      sx={{
-        p: 3,
-        borderRadius: 3,
-        border: `1px solid ${borderColor}`,
-        boxShadow: 1,
-        height: "100%",
-      }}
-    >
-      <Typography variant="h6" sx={{ fontWeight: 700, color: titleColor, mb: 2 }}>
-        CHOOSE COURSE
-      </Typography>
-
-      {/* Select Course */}
-      <Box sx={{ mb: 3 }}>
-        <FormControl fullWidth size="small">
-          <InputLabel>Select Course</InputLabel>
-          <Select
-            value={selectedCourse}
-            onChange={handleSelectedCourse}
-            label="Select Course"
+          <Paper
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              border: `1px solid ${borderColor}`,
+              boxShadow: 1,
+              height: "100%",
+            }}
           >
-            {studentCourses.map((c) => (
-              <MenuItem key={c.course_id} value={c.course_id}>
-                {c.course_code} - {c.course_description}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: titleColor, mb: 2 }}>
+              CHOOSE COURSE
+            </Typography>
 
-      {/* INFORMATION DISPLAY */}
-      {selectedProfessor && (
-        <Box sx={{ mt: 1 }}>
-          {[
-            {
-              label: "Name of Faculty being Evaluated",
-              value: `${selectedProfessor.fname || ""} ${selectedProfessor.mname || ""} ${selectedProfessor.lname || ""}`.trim(),
-            },
-            {
-              label: "College/Department",
-              value: selectedProfessor.department || "",
-            },
-            {
-              label: "Course Code",
-              value: selectedProfessor.course_code || "",
-            },
-            {
-              label: "Program Code",
-              value: `${selectedProfessor.curriculum_year}-${selectedProfessor.program_code}` || "",
-            },
-            {
-              label: "Semester or Term/Academic Year",
-              value: `${selectedProfessor.current_year} - ${selectedProfessor.next_year}, ${selectedProfessor.semester_description}`|| "",
-            },
-          ].map((row, index) => (
-            <Grid
-              container
-              key={index}
-              sx={{ mb: 1.2 }}
-            >
-              {/* LABEL */}
-              <Grid item xs={7}>
-                <Typography sx={{ fontSize: 14 }}>{row.label}</Typography>
-              </Grid>
+            {/* Select Course */}
+            <Box sx={{ mb: 3 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Select Course</InputLabel>
+                <Select
+                  value={selectedCourse}
+                  onChange={handleSelectedCourse}
+                  label="Select Course"
+                >
+                  {studentCourses.map((c) => (
+                    <MenuItem key={c.course_id} value={c.course_id}>
+                      {c.course_code} - {c.course_description}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
 
-              {/* COLON */}
-              <Grid item xs={1}>
-                <Typography sx={{ fontSize: 14 }}>:</Typography>
-              </Grid>
+            {/* INFORMATION DISPLAY */}
+            {selectedProfessor && (
+              <Box sx={{ mt: 1 }}>
+                {[
+                  {
+                    label: "Name of Faculty being Evaluated",
+                    value: `${selectedProfessor.fname || ""} ${selectedProfessor.mname || ""} ${selectedProfessor.lname || ""}`.trim(),
+                  },
+                  {
+                    label: "College/Department",
+                    value: selectedProfessor.department || "",
+                  },
+                  {
+                    label: "Course Code",
+                    value: selectedProfessor.course_code || "",
+                  },
+                  {
+                    label: "Program Code",
+                    value: `${selectedProfessor.curriculum_year}-${selectedProfessor.program_code}` || "",
+                  },
+                  {
+                    label: "Semester or Term/Academic Year",
+                    value: `${selectedProfessor.current_year} - ${selectedProfessor.next_year}, ${selectedProfessor.semester_description}` || "",
+                  },
+                ].map((row, index) => (
+                  <Grid
+                    container
+                    key={index}
+                    sx={{ mb: 1.2 }}
+                  >
+                    {/* LABEL */}
+                    <Grid item xs={7}>
+                      <Typography sx={{ fontSize: 14 }}>{row.label}</Typography>
+                    </Grid>
 
-              {/* VALUE */}
-              <Grid item xs={4}>
-                <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
-                  {row.value}
-                </Typography>
-              </Grid>
-            </Grid>
-          ))}
-        </Box>
-      )}
-    </Paper>
-  </Grid>
+                    {/* COLON */}
+                    <Grid item xs={1}>
+                      <Typography sx={{ fontSize: 14 }}>:</Typography>
+                    </Grid>
+
+                    {/* VALUE */}
+                    <Grid item xs={4}>
+                      <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
+                        {row.value}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                ))}
+              </Box>
+            )}
+          </Paper>
+        </Grid>
 
         {/* RATING CRITERIA */}
         <Grid item xs={12} md={6}>
@@ -330,42 +342,42 @@ const [saveDialogOpen, setSaveDialogOpen] = useState(false);
             >
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{  backgroundColor: settings?.header_color || "#1976d2", color: "white", border: "2px solid black" }}>
-                    <TableCell sx={{ fontWeight: 700 , color: "white",  border: "2px solid black"}}>Scale</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: "white",  border: "2px solid black"}}>Qualitative Description</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: "white",  border: "2px solid black"}}>Operational Definition</TableCell>
+                  <TableRow sx={{ backgroundColor: settings?.header_color || "#1976d2", color: "white", border: "2px solid black" }}>
+                    <TableCell sx={{ fontWeight: 700, color: "white", border: "2px solid black" }}>Scale</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: "white", border: "2px solid black" }}>Qualitative Description</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: "white", border: "2px solid black" }}>Operational Definition</TableCell>
                   </TableRow>
                 </TableHead>
 
                 <TableBody>
-                  <TableRow sx={{border: "2px solid black"}}>
+                  <TableRow sx={{ border: "2px solid black" }}>
                     <TableCell sx={{ fontWeight: 600 }}>5</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Always manifested</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Evident in nearly all relevant situations (91–100%).</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Always manifested</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Evident in nearly all relevant situations (91–100%).</TableCell>
                   </TableRow>
 
-                  <TableRow sx={{border: "2px solid black"}}>
+                  <TableRow sx={{ border: "2px solid black" }}>
                     <TableCell sx={{ fontWeight: 600 }}>4</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Often manifested</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Evident most of the time (61–90%).</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Often manifested</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Evident most of the time (61–90%).</TableCell>
                   </TableRow>
 
-                  <TableRow sx={{border: "2px solid black"}}>
+                  <TableRow sx={{ border: "2px solid black" }}>
                     <TableCell sx={{ fontWeight: 600 }}>3</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Sometimes manifested</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Evident about half the time (31–60%).</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Sometimes manifested</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Evident about half the time (31–60%).</TableCell>
                   </TableRow>
 
-                  <TableRow sx={{border: "2px solid black"}}>
+                  <TableRow sx={{ border: "2px solid black" }}>
                     <TableCell sx={{ fontWeight: 600 }}>2</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Seldom manifested</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Rarely evident (11–30%).</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Seldom manifested</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Rarely evident (11–30%).</TableCell>
                   </TableRow>
 
-                  <TableRow sx={{border: "2px solid black"}}>
+                  <TableRow sx={{ border: "2px solid black" }}>
                     <TableCell sx={{ fontWeight: 600 }}>1</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Never manifested</TableCell>
-                    <TableCell sx={{border: "2px solid black"}}>Almost never evident (0–10%).</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Never manifested</TableCell>
+                    <TableCell sx={{ border: "2px solid black" }}>Almost never evident (0–10%).</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -396,7 +408,7 @@ const [saveDialogOpen, setSaveDialogOpen] = useState(false);
                   {items[0].title}
                 </Typography>
 
-                <Typography variant="body2" sx={{ fontStyle: "italic", fontSize: "15px",color: subtitleColor }}>
+                <Typography variant="body2" sx={{ fontStyle: "italic", fontSize: "15px", color: subtitleColor }}>
                   {items[0].meaning}
                 </Typography>
               </Box>

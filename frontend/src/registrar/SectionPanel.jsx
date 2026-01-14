@@ -19,6 +19,8 @@ import {
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
+import SearchIcon from "@mui/icons-material/Search";
+
 const SectionPanel = () => {
   const settings = useContext(SettingsContext);
 
@@ -44,6 +46,11 @@ const SectionPanel = () => {
   };
 
 
+  const [sectionSearchQuery, setSectionSearchQuery] = useState("");
+
+  const filteredSections = sections.filter((section) =>
+    section.description.toLowerCase().includes(sectionSearchQuery.toLowerCase())
+  );
 
   // Snackbar state
   const [snackbar, setSnackbar] = useState({
@@ -177,15 +184,36 @@ const SectionPanel = () => {
     };
   }, []);
 
-  if (loading || hasAccess === null)return <LoadingOverlay open={loading} message="Loading..." />;
+  if (loading || hasAccess === null) return <LoadingOverlay open={loading} message="Loading..." />;
   if (!hasAccess) return <Unauthorized />;
 
   return (
-    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent" }}>
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', mb: 2 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold', color: titleColor, fontSize: '36px' }}>
           SECTION PANEL FORM
         </Typography>
+
+        <TextField
+          variant="outlined"
+          placeholder="Search Section Description..."
+          size="small"
+          value={sectionSearchQuery}
+          onChange={(e) => setSectionSearchQuery(e.target.value)}
+          sx={{
+            width: 450,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            mb: 2,
+            mt: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
       </Box>
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
@@ -233,7 +261,8 @@ const SectionPanel = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {sections.map((section) => (
+               {filteredSections.map((section) => (
+
                   <TableRow key={section.id}>
                     <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>{section.id}</TableCell>
                     <TableCell sx={{ border: `2px solid ${borderColor}`, textAlign: "center" }}>{section.description}</TableCell>

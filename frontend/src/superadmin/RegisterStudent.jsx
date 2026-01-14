@@ -413,7 +413,7 @@ const RegisterStudents = () => {
     }
 
     return (
-        <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", pr: 1 }}>
+           <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 {/* Left: Header */}
                 <Typography variant="h4" fontWeight="bold" style={{ color: titleColor, }}>

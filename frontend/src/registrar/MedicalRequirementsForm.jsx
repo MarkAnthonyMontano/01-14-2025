@@ -463,7 +463,7 @@ const MedicalRequirements = () => {
   }
 
   return (
-    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", }}>
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       {/* 🟥 HEADER SECTION */}
       <Box
         sx={{

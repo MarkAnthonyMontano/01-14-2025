@@ -74,7 +74,7 @@ const ScheduleFilterer = () => {
   };
 
   return (
-    <Box p={3}>
+        <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <Typography
         variant="h3"
         fontWeight="bold"

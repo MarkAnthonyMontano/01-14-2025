@@ -2,23 +2,23 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { SettingsContext } from "../App";
 
 import axios from "axios";
-import { Button, Box, TextField, Container, Card, Typography, FormHelperText, FormControl, InputLabel, Select, MenuItem, Modal } from "@mui/material";
+import { Button, Box, TextField, Container, Typography, Card, Table, TableBody, FormGroup, Modal, FormHelperText, FormControlLabel, Checkbox, TableCell, TableRow } from "@mui/material";
 import { Link } from "react-router-dom";
 import PersonIcon from "@mui/icons-material/Person";
 import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
 import SchoolIcon from "@mui/icons-material/School";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import InfoIcon from "@mui/icons-material/Info";
+import ErrorIcon from '@mui/icons-material/Error';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import ErrorIcon from '@mui/icons-material/Error';
 import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import { useLocation } from "react-router-dom";
 import ExamPermit from "../applicant/ExamPermit";
 import API_BASE_URL from "../apiConfig";
-import { Snackbar, Alert } from "@mui/material";
-const Dashboard3 = (props) => {
+const Dashboard4 = (props) => {
   const settings = useContext(SettingsContext);
 
   const [titleColor, setTitleColor] = useState("#000000");
@@ -64,38 +64,14 @@ const Dashboard3 = (props) => {
   const [user, setUser] = useState("");
   const [userRole, setUserRole] = useState("");
   const [person, setPerson] = useState({
-    schoolLevel: "",
-    schoolLastAttended: "",
-    schoolAddress: "",
-    courseProgram: "",
-    honor: "",
-    generalAverage: "",
-    yearGraduated: "",
-    schoolLevel1: "",
-    schoolLastAttended1: "",
-    schoolAddress1: "",
-    courseProgram1: "",
-    honor1: "",
-    generalAverage1: "",
-    yearGraduated1: "",
-    strand: "",
+    cough: "", colds: "", fever: "", asthma: "", fainting: "", heartDisease: "", tuberculosis: "",
+    frequentHeadaches: "", hernia: "", chronicCough: "", headNeckInjury: "", hiv: "", highBloodPressure: "",
+    diabetesMellitus: "", allergies: "", cancer: "", smoking: "", alcoholDrinking: "", hospitalized: "",
+    hospitalizationDetails: "", medications: "", hadCovid: "", covidDate: "",
+    vaccine1Brand: "", vaccine1Date: "", vaccine2Brand: "", vaccine2Date: "",
+    booster1Brand: "", booster1Date: "", booster2Brand: "", booster2Date: "",
+    chestXray: "", cbc: "", urinalysis: "", otherworkups: "", symptomsToday: "", remarks: ""
   });
-
-  // Add this state at the top if not already:
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "warning" });
-
-  // Snackbar close handler
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') return;
-    setSnackbar(prev => ({ ...prev, open: false }));
-  };
-
-  // Example: replace previous calls with this:
-  const showSnackbar = (message) => {
-    setSnackbar({ open: true, message, severity: "warning" });
-  };
-
-
 
   // do not alter
   useEffect(() => {
@@ -103,7 +79,7 @@ const Dashboard3 = (props) => {
     const storedRole = localStorage.getItem("role");
     const storedID = localStorage.getItem("person_id");
     const keys = JSON.parse(localStorage.getItem("dashboardKeys") || "{}");
-    navigate(`/dashboard/${keys.step3}`);
+    navigate(`/dashboard/${keys.step4}`);
 
 
     const overrideId = props?.adminOverridePersonId; // new
@@ -136,42 +112,46 @@ const Dashboard3 = (props) => {
   const fetchPersonData = async (id) => {
     try {
       const res = await axios.get(`${API_BASE_URL}/api/person/${id}`);
-
-      const safePerson = Object.fromEntries(
-        Object.entries(res.data).map(([key, val]) => [key, val ?? ""])
-      );
-
-      setPerson(safePerson);
-    } catch (error) {
-      console.error("Failed to fetch person data", error);
-    }
+      setPerson(res.data);
+    } catch (error) { }
   };
+
 
   // Do not alter
   const handleUpdate = async (updatedPerson) => {
     try {
-      // ✅ Check if data exists before sending
+      // ✅ Step 1: Validate that updatedPerson is not empty or undefined
       if (!updatedPerson || Object.keys(updatedPerson).length === 0) {
-        console.warn("⚠️ No data to update — skipping PUT request.");
+        console.warn("⚠️ No data to update — skipping request.");
         return;
       }
 
-      console.log("🧠 Sending update:", updatedPerson);
-
-      const response = await axios.put(
-        `${API_BASE_URL}/api/person/${userID}`,
-        updatedPerson
+      // ✅ Step 2: Clean data before sending (convert undefined to null)
+      const cleanedData = Object.fromEntries(
+        Object.entries(updatedPerson).map(([key, value]) => [
+          key,
+          value === undefined ? null : value,
+        ])
       );
 
+      console.log("📤 Sending update to server:", cleanedData);
+
+      // ✅ Step 3: Send the PUT request to backend
+      const response = await axios.put(
+        `${API_BASE_URL}/api/person/${userID}`,
+        cleanedData
+      );
+
+      // ✅ Step 4: Log confirmation
       console.log("✅ Auto-saved successfully:", response.data);
     } catch (error) {
+      // ✅ Step 5: Detailed error logging
       console.error(
         "❌ Auto-save failed:",
         error.response?.data || error.message
       );
     }
   };
-
 
   // Real-time save on every character typed
   const handleChange = (e) => {
@@ -196,7 +176,6 @@ const Dashboard3 = (props) => {
   };
 
 
-
   const keys = JSON.parse(localStorage.getItem("dashboardKeys") || "{}");
 
   const steps = [
@@ -208,54 +187,28 @@ const Dashboard3 = (props) => {
   ];
 
 
-
-  const [activeStep, setActiveStep] = useState(2);
+  const [activeStep, setActiveStep] = useState(3);
   const [clickedSteps, setClickedSteps] = useState(Array(steps.length).fill(false));
 
   const handleStepClick = (index) => {
-    if (isFormValid()) {
-      setActiveStep(index);
-      const newClickedSteps = [...clickedSteps];
-      newClickedSteps[index] = true;
-      setClickedSteps(newClickedSteps);
-      navigate(steps[index].path); // ✅ actually move to step
-    } else {
-      Snackbar("Please fill all required fields before proceeding.");
-    }
-  };
-
-  const [errors, setErrors] = useState({});
-
-  const isFormValid = () => {
-    const requiredFields = [
-      // Original fields
-      "schoolLevel", "schoolLastAttended", "schoolAddress",
-      "honor", "generalAverage", "yearGraduated", "strand",
-
-      // Newly added fields
-      "schoolLevel1", "schoolLastAttended1", "schoolAddress1", "courseProgram1",
-      "honor1", "generalAverage1", "yearGraduated1"
-    ];
-
-    let newErrors = {};
-    let isValid = true;
-
-    requiredFields.forEach((field) => {
-      const value = person[field];
-      const stringValue = value?.toString().trim();
-
-      if (!stringValue) {
-        newErrors[field] = true;
-        isValid = false;
-      }
-    });
-
-    setErrors(newErrors);
-    return isValid;
+    // remove or replace isFormValid() until implemented
+    setActiveStep(index);
+    const newClickedSteps = [...clickedSteps];
+    newClickedSteps[index] = true;
+    setClickedSteps(newClickedSteps);
+    navigate(steps[index].path);
   };
 
 
-
+  const inputStyle = {
+    width: "100%",
+    border: "1px solid #ccc",
+    borderRadius: "8px",
+    padding: "6px",
+    boxSizing: "border-box",
+    backgroundColor: "white",
+    color: "black",
+  };
 
   const divToPrintRef = useRef();
   const [showPrintView, setShowPrintView] = useState(false);
@@ -345,6 +298,7 @@ const Dashboard3 = (props) => {
   ];
 
 
+
   const [canPrintPermit, setCanPrintPermit] = useState(false);
 
   useEffect(() => {
@@ -358,16 +312,15 @@ const Dashboard3 = (props) => {
 
 
 
-
-
+  // dot not alter
   return (
-       <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
-  
+     <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       {showPrintView && (
         <div ref={divToPrintRef} style={{ display: "block" }}>
           <ExamPermit />
         </div>
       )}
+
       <Box
         sx={{
           display: 'flex',
@@ -388,7 +341,7 @@ const Dashboard3 = (props) => {
             fontSize: '36px',
           }}
         >
-          EDUCATIONAL ATTAINMENT
+          HEALTH MEDICAL RECORDS
         </Typography>
 
 
@@ -398,8 +351,7 @@ const Dashboard3 = (props) => {
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
 
       <br />
-
-      <Box
+ <Box
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -459,18 +411,18 @@ const Dashboard3 = (props) => {
 
 
 
-
-      <h1
-        style={{
-          fontSize: "30px",
-          fontWeight: "bold",
-          textAlign: "center",
-          color: "black",
-          marginTop: "25px",
-        }}
-      >
-        LISTS OF ALL PRINTABLE FILES
-      </h1>
+  
+        <h1
+          style={{
+            fontSize: "30px",
+            fontWeight: "bold",
+            textAlign: "center",
+            color: "black",
+            marginTop: "25px",
+          }}
+        >
+          LISTS OF ALL PRINTABLE FILES
+        </h1>
 
       <Box
         sx={{
@@ -547,7 +499,6 @@ const Dashboard3 = (props) => {
         ))}
       </Box>
 
-
       <Container>
 
         <Container>
@@ -621,6 +572,7 @@ const Dashboard3 = (props) => {
           ))}
         </Box>
 
+
         <br />
 
         <form>
@@ -638,438 +590,663 @@ const Dashboard3 = (props) => {
             }}
           >
             <Box sx={{ width: "100%" }}>
-              <Typography style={{ fontSize: "20px", padding: "10px", fontFamily: "Arial Black" }}>Step 3: Educational Attainment</Typography>
+              <Typography style={{ fontSize: "20px", padding: "10px", fontFamily: "Arial Black" }}>Step 4: Health and Medical Records</Typography>
             </Box>
           </Container>
 
           <Container maxWidth="100%" sx={{ backgroundColor: "#f1f1f1", border: `2px solid ${borderColor}`, padding: 4, borderRadius: 2, boxShadow: 3 }}>
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Junior High School - Background:</Typography>
+            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Health and Mecidal Record:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "nowrap",   // 🔥 forces one row only
-                gap: 2,
-                mb: 2,
-              }}
-            >
-              {/* Educational Attainment */}
-              <Box sx={{ flex: "1" }}>
-                <Typography variant="subtitle1" mb={1} sx={{ minHeight: "32px" }}>
-                  Educational Attainment
-                </Typography>
 
-                <FormControl fullWidth size="small" required error={!!errors.schoolLevel}>
-                  <InputLabel id="schoolLevel-label">Educational Attainment</InputLabel>
-                  <Select
-                    labelId="schoolLevel-label"
-                    id="schoolLevel"
-                    name="schoolLevel"
-                    value={person.schoolLevel ?? ""}
-                    label="Educational Attainment"
-                    onChange={handleChange}
-                    onBlur={() => handleUpdate(person)}
-                  >
-                    <MenuItem value="">
-                      <em>Select School Level</em>
-                    </MenuItem>
-                    <MenuItem value="High School/Junior High School">
-                      High School/Junior High School
-                    </MenuItem>
-                    <MenuItem value="ALS">ALS</MenuItem>
-                  </Select>
-                  {errors.schoolLevel && (
-                    <FormHelperText>This field is required.</FormHelperText>
-                  )}
-                </FormControl>
-              </Box>
-
-              {/* School Last Attended */}
-              <Box sx={{ flex: "1" }}>
-                <Typography variant="subtitle1" mb={1} sx={{ minHeight: "32px" }}>
-                  School Last Attended
-                </Typography>
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="schoolLastAttended"
-                  placeholder="Enter School Last Attended"
-                  value={person.schoolLastAttended || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.schoolLastAttended}
-                  helperText={
-                    errors.schoolLastAttended ? "This field is required." : ""
-                  }
-                />
-              </Box>
-
-              {/* School Address */}
-              <Box sx={{ flex: "1" }}>
-                <Typography
-                  variant="subtitle1"
-                  mb={1}
-                  sx={{ minHeight: "32px", fontSize: "12.5px" }}
-                >
-                  School Full Address (Street / BRGY / City)
-                </Typography>
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="schoolAddress"
-                  placeholder="Enter your School Address"
-                  value={person.schoolAddress || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.schoolAddress}
-                  helperText={errors.schoolAddress ? "This field is required." : ""}
-                />
-              </Box>
-
-              {/* Course Program */}
-              <Box sx={{ flex: "1" }}>
-                <Typography variant="subtitle1" mb={1} sx={{ minHeight: "32px" }}>
-                  Course Program
-                </Typography>
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="courseProgram"
-                  placeholder="Enter your Course Program"
-                  value={person.courseProgram || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.courseProgram}
-                  helperText={errors.courseProgram ? "This field is required." : ""}
-                />
-              </Box>
-            </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                mb: 2,
-              }}
-            >
-              <Box sx={{ flex: "1 1 33%" }}>
-                <Typography variant="subtitle1" mb={1}>
-                  Recognition / Awards
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  name="honor"
-                  required
-                  value={person.honor || ""}
-                  placeholder="Enter your Honor"
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-
-                  error={errors.honor}
-                  helperText={errors.honor ? "This field is required." : ""}
-                />
-              </Box>
-
-              <Box sx={{ flex: "1 1 33%" }}>
-                <Typography variant="subtitle1" mb={1}>
-                  General Average
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="generalAverage"
-                  type="number"           // <-- allow number input
-                  inputProps={{
-                    step: "0.01",         // <-- allow decimal numbers
-                    min: 0,               // optional: restrict negative values
-                    max: 100              // optional: restrict max value
-                  }}
-                  value={person.generalAverage || ""}
-                  placeholder="Enter your General Average"
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.generalAverage}
-                  helperText={errors.generalAverage ? "This field is required." : ""}
-                />
-              </Box>
-
-
-
-              <Box sx={{ flex: "1 1 33%" }}>
-                <Typography variant="subtitle1" mb={1}>
-                  Year Graduated
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="yearGraduated"
-                  type="number" // restrict to numbers
-                  inputProps={{
-                    min: 1900,          // optional: earliest acceptable year
-                    max: new Date().getFullYear(), // optional: current year
-                    step: 1             // only allow whole numbers
-                  }}
-                  placeholder="Enter your Year Graduated"
-                  value={person.yearGraduated || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.yearGraduated}
-                  helperText={errors.yearGraduated ? "This field is required." : ""}
-                />
-              </Box>
-
-            </Box>
-
-
-
-
-
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Senior High School - Background:</Typography>
-            <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-            <br />
-
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "nowrap",
-                gap: 2,
-                mb: 2,
-              }}
-            >
-              {/* School Level 1 */}
-              <Box sx={{ flex: "1" }}>
-                <Typography variant="subtitle1" mb={1} sx={{ minHeight: "32px" }}>
-                  Educational Attainment
-                </Typography>
-
-                <FormControl fullWidth size="small" required error={!!errors.schoolLevel1}>
-                  <InputLabel id="schoolLevel1-label">Educational Attainment</InputLabel>
-                  <Select
-                    labelId="schoolLevel1-label"
-                    id="schoolLevel1"
-                    name="schoolLevel1"
-                    value={person.schoolLevel1 ?? ""}
-                    label="Educational Attainment"
-                    onChange={handleChange}
-                    onBlur={() => handleUpdate(person)}
-                  >
-                    <MenuItem value="">
-                      <em>Select School Level</em>
-                    </MenuItem>
-                    <MenuItem value="Senior High School">Senior High School</MenuItem>
-                    <MenuItem value="Undergraduate">Undergraduate</MenuItem>
-                    <MenuItem value="Graduate">Graduate</MenuItem>
-                    <MenuItem value="ALS">ALS</MenuItem>
-                  </Select>
-
-                  {errors.schoolLevel1 && (
-                    <FormHelperText>This field is required.</FormHelperText>
-                  )}
-                </FormControl>
-              </Box>
-
-              {/* School Last Attended 1 */}
-              <Box sx={{ flex: "1" }}>
-                <Typography variant="subtitle1" mb={1} sx={{ minHeight: "32px" }}>
-                  School Last Attended
-                </Typography>
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="schoolLastAttended1"
-                  placeholder="Enter School Last Attended"
-                  value={person.schoolLastAttended1 || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.schoolLastAttended1}
-                  helperText={errors.schoolLastAttended1 ? "This field is required." : ""}
-                />
-              </Box>
-
-              {/* School Address 1 */}
-              <Box sx={{ flex: "1" }}>
-                <Typography
-                  variant="subtitle1"
-                  mb={1}
-                  sx={{ minHeight: "32px", fontSize: "12.5px" }}
-                >
-                  School Full Address (Street / BRGY / City)
-                </Typography>
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="schoolAddress1"
-                  placeholder="Enter your School Address"
-                  value={person.schoolAddress1 || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.schoolAddress1}
-                  helperText={errors.schoolAddress1 ? "This field is required." : ""}
-                />
-              </Box>
-
-              {/* Course Program 1 */}
-              <Box sx={{ flex: "1" }}>
-                <Typography variant="subtitle1" mb={1} sx={{ minHeight: "32px" }}>
-                  Course Program
-                </Typography>
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="courseProgram1"
-                  placeholder="Enter your Course Program"
-                  value={person.courseProgram1 || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.courseProgram1}
-                  helperText={errors.courseProgram1 ? "This field is required." : ""}
-                />
-              </Box>
-            </Box>
-
-
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                mb: 2,
-              }}
-            >
-              {/* Honor 1 */}
-              <Box sx={{ flex: "1 1 33%" }}>
-                <Typography variant="subtitle1" mb={1}>
-                  Recognition / Awards
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="honor1"
-                  placeholder="Enter your Honor"
-                  value={person.honor1 || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-
-                  error={errors.honor1}
-                  helperText={errors.honor1 ? "This field is required." : ""}
-                />
-              </Box>
-
-              {/* General Average 1 */}
-              <Box sx={{ flex: "1 1 33%" }}>
-                <Typography variant="subtitle1" mb={1}>
-                  General Average
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="generalAverage1"
-                  type="number" // allow only numeric input
-                  inputProps={{
-                    step: "0.01", // allow decimals
-                    min: 0,       // optional: minimum value
-                    max: 100      // optional: maximum value
-                  }}
-                  placeholder="Enter your General Average"
-                  value={person.generalAverage1 || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.generalAverage1}
-                  helperText={errors.generalAverage1 ? "This field is required." : ""}
-                />
-              </Box>
-
-
-              {/* Year Graduated 1 */}
-              <Box sx={{ flex: "1 1 33%" }}>
-                <Typography variant="subtitle1" mb={1}>
-                  Year Graduated
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  required
-                  name="yearGraduated1"
-                  type="number" // restrict to numbers
-                  inputProps={{
-                    min: 1900, // optional: earliest year
-                    max: new Date().getFullYear(), // optional: current year
-                    step: 1 // only allow whole numbers
-                  }}
-                  placeholder="Enter your Year Graduated"
-                  value={person.yearGraduated1 || ""}
-                  onChange={handleChange}
-                  onBlur={() => handleUpdate(person)}
-                  error={errors.yearGraduated1}
-                  helperText={errors.yearGraduated1 ? "This field is required." : ""}
-                />
-              </Box>
-
-            </Box>
-
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>
-              Strand (For Senior High School)
+            <Typography variant="subtitle1" mb={1}>
+              <div style={{ fontWeight: "bold" }}>I. Do you have any of the following symptoms today?</div>
             </Typography>
-            <hr style={{ border: "1px solid #ccc", width: "100%" }} />
+
+            <FormGroup row sx={{ ml: 2 }}>
+              {["cough", "colds", "fever"].map((symptom) => (
+                <FormControlLabel
+                  key={symptom}
+                  control={
+                    <Checkbox
+                      name={symptom}
+                      checked={person[symptom] === 1}
+                      onChange={(e) => {
+                        const { name, checked } = e.target;
+                        const updatedPerson = {
+                          ...person,
+                          [name]: checked ? 1 : 0,
+                        };
+                        setPerson(updatedPerson);
+                        handleUpdate(updatedPerson);
+                      }}
+                      onBlur={() => handleUpdate(person)}
+                    />
+                  }
+                  label={symptom.charAt(0).toUpperCase() + symptom.slice(1)}
+                  sx={{ ml: 5 }}
+                />
+              ))}
+            </FormGroup>
+
             <br />
 
+            <Typography variant="subtitle1" mb={1}>
+              <div style={{ fontWeight: "bold" }}>II. MEDICAL HISTORY: Have you suffered from, or been told you had, any of the following conditions:</div>
+            </Typography>
 
-            <FormControl fullWidth size="small" required error={!!errors.strand} className="mb-4">
-              <InputLabel id="strand-label">Strand</InputLabel>
-              <Select
-                labelId="strand-label"
-                id="strand-select"
-                name="strand"
-                value={person.strand ?? ""}
-                label="Strand"
-                onChange={handleChange}
+
+            <table
+              style={{
+                width: "100%",
+                border: "1px solid black",
+                borderCollapse: "collapse",
+                fontFamily: "Arial, Helvetica, sans-serif",
+                tableLayout: "fixed",
+              }}
+            >
+              <tbody>
+                {/* Headers */}
+                <tr>
+                  <td colSpan={15} style={{ border: "1px solid black", height: "0.25in" }}></td>
+                  <td colSpan={12} style={{ border: "1px solid black", textAlign: "center" }}>Yes or No</td>
+                  <td colSpan={15} style={{ border: "1px solid black", height: "0.25in" }}></td>
+                  <td colSpan={12} style={{ border: "1px solid black", textAlign: "center" }}>Yes or No</td>
+                  <td colSpan={15} style={{ border: "1px solid black", height: "0.25in" }}></td>
+                  <td colSpan={12} style={{ border: "1px solid black", textAlign: "center" }}>Yes or No</td>
+                </tr>
+
+                {[
+                  { label: "Asthma", key: "asthma" },
+                  { label: "Fainting Spells and seizures", key: "faintingSpells" },
+                  { label: "Heart Disease", key: "heartDisease" },
+                  { label: "Tuberculosis", key: "tuberculosis" },
+                  { label: "Frequent Headaches", key: "frequentHeadaches" },
+                  { label: "Hernia", key: "hernia" },
+                  { label: "Chronic cough", key: "chronicCough" },
+                  { label: "Head or neck injury", key: "headNeckInjury" },
+                  { label: "H.I.V", key: "hiv" },
+                  { label: "High blood pressure", key: "highBloodPressure" },
+                  { label: "Diabetes Mellitus", key: "diabetesMellitus" },
+                  { label: "Allergies", key: "allergies" },
+                  { label: "Cancer", key: "cancer" },
+                  { label: "Smoking of cigarette/day", key: "smokingCigarette" },
+                  { label: "Alcohol Drinking", key: "alcoholDrinking" },
+                ]
+                  .reduce((rows, item, idx, arr) => {
+                    if (idx % 3 === 0) rows.push(arr.slice(idx, idx + 3));
+                    return rows;
+                  }, [])
+                  .map((rowGroup, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {rowGroup.map(({ label, key }) => (
+                        <React.Fragment key={key}>
+                          <td colSpan={15} style={{ border: "1px solid black", padding: "4px" }}>{label}</td>
+                          <td colSpan={12} style={{ border: "1px solid black", padding: "4px" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "2px", marginLeft: "10px" }}>
+                                {/* YES */}
+                                <div style={{ display: "flex", alignItems: "center", gap: "1px", }}>
+                                  <Checkbox
+                                    name={key}
+                                    checked={person[key] === 1}
+                                    onChange={() => {
+                                      const updatedPerson = {
+                                        ...person,
+                                        [key]: person[key] === 1 ? null : 1,
+                                      };
+                                      setPerson(updatedPerson);
+                                      handleUpdate(updatedPerson);
+                                    }}
+                                    onBlur={() => handleUpdate(person)}
+                                  />
+                                  <span style={{ fontSize: "15px", fontFamily: "Arial" }}>Yes</span>
+                                </div>
+
+                                {/* NO */}
+                                <div style={{ display: "flex", alignItems: "center", gap: "1px" }}>
+                                  <Checkbox
+                                    name={key}
+                                    checked={person[key] === 0}
+                                    onChange={() => {
+                                      const updatedPerson = {
+                                        ...person,
+                                        [key]: person[key] === 0 ? null : 0,
+                                      };
+                                      setPerson(updatedPerson);
+                                      handleUpdate(updatedPerson);
+                                    }}
+                                    onBlur={() => handleUpdate(person)}
+                                  />
+                                  <span style={{ fontSize: "15px", fontFamily: "Arial" }}>No</span>
+                                </div>
+                              </div>
+
+
+                            </div>
+                          </td>
+                        </React.Fragment>
+                      ))}
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+
+
+
+            <Box mt={1} flexDirection="column" display="flex" alignItems="flex-start">
+              <Box mt={1} flexDirection="column" display="flex" alignItems="flex-start">
+                <Box display="flex" alignItems="center" flexWrap="wrap">
+                  <Typography sx={{ marginRight: '16px' }}>
+                    Do you have any previous history of hospitalization or operation?
+                  </Typography>
+
+                  <Box display="flex" gap="16px" ml={4} alignItems="center">
+                    {/* YES */}
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          name="hospitalized"
+                          checked={person.hospitalized === 1}
+                          onChange={() => {
+                            const updatedPerson = {
+                              ...person,
+                              hospitalized: person.hospitalized === 1 ? null : 1,
+                            };
+                            setPerson(updatedPerson);
+                            handleUpdate(updatedPerson);
+                          }}
+                          onBlur={() => handleUpdate(person)}
+                        />
+                      }
+                      label="Yes"
+                    />
+
+                    {/* NO */}
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          name="hospitalized"
+                          checked={person.hospitalized === 0}
+                          onChange={() => {
+                            const updatedPerson = {
+                              ...person,
+                              hospitalized: person.hospitalized === 0 ? null : 0,
+                            };
+                            setPerson(updatedPerson);
+                            handleUpdate(updatedPerson);
+                          }}
+                          onBlur={() => handleUpdate(person)}
+                        />
+                      }
+                      label="No"
+                    />
+
+
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+
+
+
+
+            <Box width="100%" maxWidth={500} display="flex" alignItems="center">
+              <Typography component="label" sx={{ mr: 1, whiteSpace: 'nowrap' }}>
+                IF YES, PLEASE SPECIFY:
+              </Typography>
+              <TextField
+                fullWidth
+                name="hospitalizationDetails"
+                placeholder=""
+                variant="outlined"
+                size="small"
+                value={person.hospitalizationDetails || ""}
+                onChange={(e) => {
+                  const { name, value } = e.target;
+                  const updatedPerson = {
+                    ...person,
+                    [name]: value,
+                  };
+                  setPerson(updatedPerson);
+                  handleUpdate(updatedPerson);
+                }}
                 onBlur={() => handleUpdate(person)}
+              />
+            </Box>
 
+            <br />
+
+            <Typography variant="subtitle1" mb={1}>
+              <div style={{ fontWeight: "bold" }}>III. MEDICATION</div>
+            </Typography>
+
+
+
+            <Box mb={2}>
+              <TextField
+                fullWidth
+                multiline
+                minRows={3}
+                name="medications"
+                variant="outlined"
+                size="small"
+                value={person.medications || ""}
+                onChange={(e) => {
+                  const { name, value } = e.target;
+                  const updatedPerson = {
+                    ...person,
+                    [name]: value,
+                  };
+                  setPerson(updatedPerson);
+                  handleUpdate(updatedPerson);
+                }}
+                onBlur={() => handleUpdate(person)}
+              />
+            </Box>
+
+            {/* IV. COVID PROFILE */}
+            <Typography variant="subtitle1" mb={1}>
+              <div style={{ fontWeight: "bold" }}>IV. COVID PROFILE: </div>
+            </Typography>
+
+
+            <table
+              style={{
+                border: "1px solid black",
+                borderCollapse: "collapse",
+                fontFamily: "Arial, Helvetica, sans-serif",
+                width: "100%",
+                tableLayout: "fixed",
+              }}
+            >
+              <tbody>
+                <tr>
+                  <td
+                    style={{
+                      height: "90px",
+                      fontSize: "100%",
+                      border: "1px solid black",
+                      padding: "8px",
+                    }}
+                  >
+
+                    <Box display="flex" alignItems="center" gap={2} flexWrap="nowrap">
+                      <Typography>A. Do you have history of COVID-19?</Typography>
+
+                      {/* YES/NO Checkboxes */}
+                      <Box display="flex" alignItems="center" gap="10px" ml={1}>
+                        {/* YES */}
+                        <Box display="flex" alignItems="center" gap="1px">
+                          <Checkbox
+                            name="hadCovid"
+                            checked={person.hadCovid === 1}
+                            onChange={() => {
+                              const updatedPerson = {
+                                ...person,
+                                hadCovid: person.hadCovid === 1 ? null : 1,
+                              };
+                              setPerson(updatedPerson);
+                              handleUpdate(updatedPerson);
+                            }}
+                            onBlur={() => handleUpdate(person)}
+                          />
+                          <span style={{ fontSize: "15px", fontFamily: "Arial" }}>YES</span>
+                        </Box>
+
+                        {/* NO */}
+                        <Box display="flex" alignItems="center" gap="1px">
+                          <Checkbox
+                            name="hadCovid"
+                            checked={person.hadCovid === 0}
+                            onChange={() => {
+                              const updatedPerson = {
+                                ...person,
+                                hadCovid: person.hadCovid === 0 ? null : 0,
+                              };
+                              setPerson(updatedPerson);
+                              handleUpdate(updatedPerson);
+                            }}
+                            onBlur={() => handleUpdate(person)}
+                          />
+                          <span style={{ fontSize: "15px", fontFamily: "Arial" }}>NO</span>
+
+
+                        </Box>
+                      </Box>
+
+                      {/* IF YES, WHEN */}
+                      <span>IF YES, WHEN:</span>
+                      <input
+                        type="date"
+                        name="covidDate"
+                        value={person.covidDate || ""}
+                        onChange={(e) => {
+                          const updatedPerson = {
+                            ...person,
+                            covidDate: e.target.value,
+                          };
+                          setPerson(updatedPerson);
+                          handleUpdate(updatedPerson);
+                        }}
+                        onBlur={() => handleUpdate(person)}
+                        style={{
+                          width: "200px",
+                          height: "50px",
+                          fontSize: "16px",
+                          padding: "10px",
+                          border: "1px solid #ccc",
+                          borderRadius: "4px",
+                        }}
+                      />
+                    </Box>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style={{
+                      fontSize: "100%",
+                      border: "1px solid black",
+                      padding: "8px",
+                    }}
+                  >
+                    <div style={{ marginBottom: "8px" }}>
+                      B. COVID Vaccinations:
+                    </div>
+                    <table
+                      style={{
+                        borderCollapse: "collapse",
+                        width: "100%",
+                        fontFamily: "Arial, Helvetica, sans-serif",
+                        tableLayout: "fixed",
+                      }}
+                    >
+                      <thead>
+                        <tr>
+                          <th style={{ textAlign: "left", width: "20%" }}></th>
+                          <th style={{ textAlign: "center" }}>1st Dose</th>
+                          <th style={{ textAlign: "center" }}>2nd Dose</th>
+                          <th style={{ textAlign: "center" }}>Booster 1</th>
+                          <th style={{ textAlign: "center" }}>Booster 2</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {/* Brand Row */}
+                        <tr>
+                          <td style={{ padding: "4px 0" }}>Brand</td>
+
+                          {["vaccine1Brand", "vaccine2Brand", "booster1Brand", "booster2Brand"].map((field) => (
+                            <td key={field} style={{ padding: "4px" }}>
+                              <input
+                                type="text"
+                                name={field}
+                                value={person[field] || ""}
+                                onChange={(e) => {
+                                  const updatedPerson = {
+                                    ...person,
+                                    [field]: e.target.value,
+                                  };
+                                  setPerson(updatedPerson);
+                                  handleUpdate(updatedPerson);
+                                }}
+                                onBlur={() => handleUpdate(person)}
+                                style={inputStyle}
+                              />
+                            </td>
+                          ))}
+                        </tr>
+
+                        {/* Date Row */}
+                        <tr>
+                          <td style={{ padding: "4px 0" }}>Date</td>
+
+                          {["vaccine1Date", "vaccine2Date", "booster1Date", "booster2Date"].map((field) => (
+                            <td key={field} style={{ padding: "4px" }}>
+                              <input
+                                type="date"
+                                name={field}
+                                value={person[field] || ""}
+                                onChange={(e) => {
+                                  const updatedPerson = {
+                                    ...person,
+                                    [field]: e.target.value,
+                                  };
+                                  setPerson(updatedPerson);
+                                  handleUpdate(updatedPerson);
+                                }}
+                                onBlur={() => handleUpdate(person)}
+                                style={inputStyle}
+                              />
+                            </td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+
+            <br />
+            {/* V. Please Indicate Result of the Following (Form Style, Table Layout) */}
+            <Typography variant="subtitle1" mb={1}>
+              <div style={{ fontWeight: "bold" }}>V. Please Indicate Result of the Following:</div>
+            </Typography>
+
+
+            <table className="w-full border border-black border-collapse table-fixed">
+              <tbody>
+                {/* Chest X-ray */}
+                <tr>
+                  <td className="border border-black p-2 w-1/3 font-medium">Chest X-ray:</td>
+                  <td className="border border-black p-2 w-2/3">
+                    <input
+                      type="text"
+                      name="chestXray"
+                      value={person.chestXray || ""}
+                      onChange={(e) => {
+                        const { name, value } = e.target;
+                        const updatedPerson = { ...person, [name]: value };
+                        setPerson(updatedPerson);
+                        handleUpdate(updatedPerson);
+                      }}
+                      onBlur={() => handleUpdate(person)}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </td>
+                </tr>
+
+                {/* CBC */}
+                <tr>
+                  <td className="border border-black p-2 font-medium">CBC:</td>
+                  <td className="border border-black p-2">
+                    <input
+                      type="text"
+                      name="cbc"
+                      value={person.cbc || ""}
+                      onChange={(e) => {
+                        const { name, value } = e.target;
+                        const updatedPerson = { ...person, [name]: value };
+                        setPerson(updatedPerson);
+                        handleUpdate(updatedPerson);
+                      }}
+                      onBlur={() => handleUpdate(person)}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </td>
+                </tr>
+
+                {/* Urinalysis */}
+                <tr>
+                  <td className="border border-black p-2 font-medium">Urinalysis:</td>
+                  <td className="border border-black p-2">
+                    <input
+                      type="text"
+                      name="urinalysis"
+                      value={person.urinalysis || ""}
+                      onChange={(e) => {
+                        const { name, value } = e.target;
+                        const updatedPerson = { ...person, [name]: value };
+                        setPerson(updatedPerson);
+                        handleUpdate(updatedPerson);
+                      }}
+                      onBlur={() => handleUpdate(person)}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </td>
+                </tr>
+
+                {/* Other Workups */}
+                <tr>
+                  <td className="border border-black p-2 font-medium">Other Workups:</td>
+                  <td className="border border-black p-2">
+                    <input
+                      type="text"
+                      name="otherworkups"
+                      value={person.otherworkups || ""}
+                      onChange={(e) => {
+                        const { name, value } = e.target;
+                        const updatedPerson = { ...person, [name]: value };
+                        setPerson(updatedPerson);
+                        handleUpdate(updatedPerson);
+                      }}
+                      onBlur={() => handleUpdate(person)}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+
+
+            <div style={{ marginTop: "16px" }}>
+              <Typography variant="subtitle1" mb={1}>
+                <div style={{ fontWeight: "bold" }}>VI. Diagnosis :</div>
+              </Typography>
+
+              <table
+                style={{
+                  width: "100%",
+                  border: "1px solid black",
+                  borderCollapse: "collapse",
+                  fontFamily: "Arial, Helvetica, sans-serif",
+                  tableLayout: "fixed",
+                }}
               >
-                <MenuItem value="">
-                  <em>Select Strand</em>
-                </MenuItem>
-                <MenuItem value="Accountancy, Business and Management (ABM)">
-                  Accountancy, Business and Management (ABM)
-                </MenuItem>
-                <MenuItem value="Humanities and Social Sciences (HUMSS)">
-                  Humanities and Social Sciences (HUMSS)
-                </MenuItem>
-                <MenuItem value="Science, Technology, Engineering, and Mathematics (STEM)">
-                  Science, Technology, Engineering, and Mathematics (STEM)
-                </MenuItem>
-                <MenuItem value="General Academic (GAS)">General Academic (GAS)</MenuItem>
-                <MenuItem value="Home Economics (HE)">Home Economics (HE)</MenuItem>
-                <MenuItem value="Information and Communications Technology (ICT)">
-                  Information and Communications Technology (ICT)
-                </MenuItem>
-                <MenuItem value="Agri-Fishery Arts (AFA)">Agri-Fishery Arts (AFA)</MenuItem>
-                <MenuItem value="Industrial Arts (IA)">Industrial Arts (IA)</MenuItem>
-                <MenuItem value="Sports Track">Sports Track</MenuItem>
-                <MenuItem value="Design and Arts Track">Design and Arts Track</MenuItem>
-              </Select>
-              {errors.strand && (
-                <FormHelperText>This field is required.</FormHelperText>
-              )}
-            </FormControl>
+                <tbody>
+                  <tr>
+                    <td
+                      style={{
+                        height: "auto",
+                        fontSize: "100%",
+                        border: "1px solid black",
+                        padding: "8px",
+                      }}
+                    >
+                      {/* Question */}
+                      <Typography sx={{ fontSize: "15px", fontFamily: "Arial", marginBottom: "4px" }}>
+                        Do you have any of the following symptoms today?
+                      </Typography>
+
+                      {/* Answer checkboxes below (YES/NO) */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "20px", marginTop: "8px" }}>
+                        {/* Physically Fit (0) */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                          <Checkbox
+                            name="symptomsToday"
+                            checked={person.symptomsToday === 0}
+                            onChange={() => {
+                              const updatedPerson = {
+                                ...person,
+                                symptomsToday: person.symptomsToday === 0 ? null : 0,
+                              };
+                              setPerson(updatedPerson);
+                              handleUpdate(updatedPerson);
+                            }}
+                            onBlur={() => handleUpdate(person)}
+                          />
+                          <span style={{ fontSize: "15px", fontFamily: "Arial" }}>Physically Fit</span>
+                        </div>
+
+                        {/* For Compliance (1) */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                          <Checkbox
+                            name="symptomsToday"
+                            checked={person.symptomsToday === 1}
+                            onChange={() => {
+                              const updatedPerson = {
+                                ...person,
+                                symptomsToday: person.symptomsToday === 1 ? null : 1,
+                              };
+                              setPerson(updatedPerson);
+                              handleUpdate(updatedPerson);
+                            }}
+                            onBlur={() => handleUpdate(person)}
+                          />
+                          <span style={{ fontSize: "15px", fontFamily: "Arial" }}>For Compliance</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+
+            {/* VII. Remarks Section */}
+            <div style={{ marginTop: "16px" }}>
+              <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+                VII. Remarks:
+              </Typography>
+              <Table
+                sx={{
+                  width: "100%",
+                  border: "1px solid black",
+                  borderCollapse: "collapse",
+                  tableLayout: "fixed",
+                }}
+              >
+                <TableBody>
+                  <TableRow>
+                    <TableCell sx={{ border: "1px solid black", p: 1 }}>
+                      <TextField
+                        name="remarks"
+                        multiline
+                        minRows={2}
+                        fullWidth
+                        size="small"
+                        value={person.remarks || ""}
+                        onChange={(e) => {
+                          const updatedPerson = {
+                            ...person,
+                            remarks: e.target.value,
+                          };
+                          setPerson(updatedPerson);
+                          handleUpdate(updatedPerson);
+                        }}
+                        onBlur={() => handleUpdate(person)}
+                        sx={{
+                          backgroundColor: "white",
+                          borderRadius: "8px",
+                          '& .MuiOutlinedInput-root': {
+                            padding: '4px 8px',
+                          },
+                          '& .MuiInputBase-multiline': {
+                            padding: 0,
+                          },
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
 
             <Modal
               open={examPermitModalOpen}
@@ -1112,19 +1289,11 @@ const Dashboard3 = (props) => {
 
 
 
-            <Box display="flex" justifyContent="space-between" mt={4}>
-              {/* Previous Step Button */}
+            <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
+              {/* Previous Page Button */}
               <Button
                 variant="contained"
-                onClick={() => {
-                  handleUpdate();
-
-                  if (isFormValid()) {
-                    navigate(`/dashboard/${keys.step2}`);
-                  } else {
-                    showSnackbar("Please complete all required fields before proceeding.");
-                  }
-                }}
+                onClick={() => navigate(`/dashboard/${keys.step3}`)} // ✅ FIXED
                 startIcon={
                   <ArrowBackIcon
                     sx={{
@@ -1135,7 +1304,7 @@ const Dashboard3 = (props) => {
                 }
                 sx={{
                   backgroundColor: subButtonColor,
-                  border: `2px solid ${borderColor}`,
+                  border: `2px solid ${borderColor}`, 
                   color: "#000",
                   "&:hover": {
                     backgroundColor: "#000000",
@@ -1154,42 +1323,33 @@ const Dashboard3 = (props) => {
                 variant="contained"
                 onClick={() => {
                   handleUpdate();
-
-                  if (isFormValid()) {
-                    navigate(`/dashboard/${keys.step4}`); // ✅ Goes to step4
-                  } else {
-                    showSnackbar("Please complete all required fields before proceeding.");
-                  }
+                  navigate(`/dashboard/${keys.step5}`); // ✅ Goes to step5
                 }}
-                endIcon={<ArrowForwardIcon sx={{ color: "#fff" }} />}
+                endIcon={
+                  <ArrowForwardIcon
+                    sx={{
+                      color: "#fff",
+                      transition: "color 0.3s",
+                    }}
+                  />
+                }
                 sx={{
                   backgroundColor: mainButtonColor,
-                  border: `2px solid ${borderColor}`,
+                  border: `2px solid ${borderColor}`, 
                   color: "#fff",
                   "&:hover": {
                     backgroundColor: "#000000",
                     color: "#fff",
-                    "& .MuiSvgIcon-root": { color: "#fff" },
+                    "& .MuiSvgIcon-root": {
+                      color: "#fff",
+                    },
                   },
                 }}
               >
                 Next Step
               </Button>
-
-
             </Box>
 
-
-            <Snackbar
-              open={snackbar.open}
-              autoHideDuration={3000} // 3 seconds
-              onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-              <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-                {snackbar.message}
-              </Alert>
-            </Snackbar>
 
 
           </Container>
@@ -1200,4 +1360,4 @@ const Dashboard3 = (props) => {
 };
 
 
-export default Dashboard3;
+export default Dashboard4;

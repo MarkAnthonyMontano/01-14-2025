@@ -17,14 +17,14 @@ const http = require("http").createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(http, {
   cors: {
-    origin: ["http://localhost:5173", "http://192.168.51.0:5173"],
+    origin: ["http://localhost:5173", "http://192.168.1.9:5173"],
     methods: ["GET", "POST"]
   }
 });
 
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:5173", "http://192.168.51.0:5173"],  // ✅ Explicitly allow Vite dev server
+  origin: ["http://localhost:5173", "http://192.168.1.9:5173"],  // ✅ Explicitly allow Vite dev server
   credentials: true                  // ✅ Allow credentials (cookies, auth)
 }));
 
@@ -602,8 +602,8 @@ app.post("/register", async (req, res) => {
     }
 
     // QR Codes
-    const qrData = `192.168.51.0:5173/examination_profile/${applicant_number}`;
-    const qrData2 = `192.168.51.0:5173/applicant_profile/${applicant_number}`;
+    const qrData = `192.168.1.9:5173/examination_profile/${applicant_number}`;
+    const qrData2 = `192.168.1.9:5173/applicant_profile/${applicant_number}`;
     const qrFilename = `${applicant_number}_qrcode.png`;
     const qrFilename2 = `${applicant_number}_qrcode2.png`;
 
@@ -4999,7 +4999,7 @@ app.post("/login_applicant", async (req, res) => {
       );
 
       // Generate QR code
-      const qrData = `192.168.51.0:5173/examination_profile/${applicantNumber}`;
+      const qrData = `192.168.1.9:5173/examination_profile/${applicantNumber}`;
       qrFilename = `${applicantNumber}_qrcode.png`;
       const qrPath = path.join(__dirname, "uploads", qrFilename);
 
@@ -6399,7 +6399,7 @@ Your temporary password is: ${tempPassword}
 You may change your password and keep it secure.
 
 👉 Click the link below to log in:
-192.168.51.0:5173/login
+192.168.1.9:5173/login
 `.trim(),
       };
 

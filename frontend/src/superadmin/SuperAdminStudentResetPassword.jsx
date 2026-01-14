@@ -184,7 +184,7 @@ const SuperAdminStudentResetPassword = () => {
   }
 
   return (
-    <Box>
+       <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       {/* Header */}
       <Box
         sx={{

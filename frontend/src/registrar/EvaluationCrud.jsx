@@ -358,7 +358,7 @@ const EvaluationCRUD = () => {
     }
 
     return (
-        <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", pr: 2 }}>
+        <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} >
                 <Typography variant="h4" fontWeight="bold" style={{ color: titleColor }}>
                     EVALUATION MANAGEMENT
@@ -643,20 +643,20 @@ const EvaluationCRUD = () => {
             <Table>
                 <TableHead sx={{ backgroundColor: settings?.header_color || "#1976d2" }}>
                 <TableRow>
-                    <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}>#</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}>Title</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}>Description</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}>Action</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center",  border: `2px solid ${borderColor}`, }}>#</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center",  border: `2px solid ${borderColor}`, }}>Title</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center",  border: `2px solid ${borderColor}`, }}>Description</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center",  border: `2px solid ${borderColor}`, }}>Action</TableCell>
                 </TableRow>
                 </TableHead>
                 <TableBody>
                 {categories.length > 0 ? (
                     categories.map((cat, index) => (
                     <TableRow key={cat.id}>
-                        <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
-                        <TableCell sx={{ textAlign: "center" }}>{cat.title}</TableCell>
-                        <TableCell sx={{ textAlign: "center" }}>{cat.description}</TableCell>
-                        <TableCell sx={{ textAlign: "center" }}>
+                        <TableCell sx={{ textAlign: "center",  border: `2px solid ${borderColor}`, }}>{index + 1}</TableCell>
+                        <TableCell sx={{ textAlign: "center",  border: `2px solid ${borderColor}`, }}>{cat.title}</TableCell>
+                        <TableCell sx={{ textAlign: "center",  border: `2px solid ${borderColor}`, }}>{cat.description}</TableCell>
+                        <TableCell sx={{ textAlign: "center",  border: `2px solid ${borderColor}`, }}>
                         <Button
                             variant="contained"
                             sx={{ backgroundColor: "#4CAF50", color: "white" }}

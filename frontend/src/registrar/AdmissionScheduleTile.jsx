@@ -191,14 +191,7 @@ const ScheduleHoverTile = () => {
     };
 
     return (
-        <Box
-            sx={{
-                height: "calc(100vh - 150px)",
-                overflowY: "auto",
-                paddingRight: 1,
-
-            }}
-        >
+           <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
             {/* Title + Search Row */}
             <Box
                 sx={{
@@ -244,8 +237,7 @@ const ScheduleHoverTile = () => {
                 </Box>
             </Box>
 
-            <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-
+  
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <div style={{ height: "30px" }}></div>
             <Box

@@ -5,6 +5,11 @@ import { Box, Typography, Snackbar, Alert } from "@mui/material";
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
+import { TextField } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+
+
+
 const CurriculumPanel = () => {
   const settings = useContext(SettingsContext);
 
@@ -123,6 +128,8 @@ const CurriculumPanel = () => {
     }
   };
 
+
+
   const fetchProgram = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/get_program`);
@@ -225,21 +232,24 @@ const CurriculumPanel = () => {
     }
   };
 
-  document.addEventListener("contextmenu", (e) => e.preventDefault());
-  document.addEventListener("keydown", (e) => {
-    const blocked =
-      e.key === "F12" ||
-      e.key === "F11" ||
-      (e.ctrlKey && e.shiftKey && ["i", "j"].includes(e.key.toLowerCase())) ||
-      (e.ctrlKey && ["u", "p"].includes(e.key.toLowerCase()));
-    if (blocked) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredCurriculumList = curriculumList.filter((item) => {
+    const words = searchQuery.trim().toLowerCase().split(" ").filter(Boolean);
+
+    return words.every((word) =>
+      String(item.year_description ?? "").toLowerCase().includes(word) ||
+      String(item.program_code ?? "").toLowerCase().includes(word) ||
+      String(item.program_description ?? "").toLowerCase().includes(word) ||
+      String(item.major ?? "").toLowerCase().includes(word)
+    );
   });
 
+
+
+
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -247,260 +257,285 @@ const CurriculumPanel = () => {
   }
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
-        paddingRight: 1,
-        backgroundColor: "transparent",
-      }}
-    >
-      <Typography
-        variant="h4"
-        sx={{ fontWeight: "bold", color: titleColor, fontSize: "36px", mb: 2 }}
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          mb: 2,
+        }}
       >
-        CURRICULUM PANEL
-      </Typography>
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: "bold", color: titleColor, fontSize: "36px", mb: 2 }}
+        >
+          CURRICULUM PANEL
+        </Typography>
+
+        <TextField
+          variant="outlined"
+          placeholder="Search Year / Program Code / Description / Major"
+          size="small"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+          }}
+          sx={{
+            width: 460,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
+      </Box>
 
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: "20px",
-          padding: "30px",
-        }}
-      >
-        {/* LEFT SECTION */}
+      <Box sx={{ maxHeight: 750, overflowY: "auto" }}>
         <div
           style={{
-            flex: 1,
-            padding: "20px",
-            borderRadius: "8px",
-            backgroundColor: "#fff",
-            border: `2px solid ${borderColor}`,
-            boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "20px",
+            padding: "30px",
           }}
         >
-          <h2 style={{ color: "maroon", fontWeight: "bold" }}>
-            Add Curriculum
-          </h2>
-
-          <div style={{ marginBottom: "15px" }}>
-            <label style={{ fontWeight: "bold" }}>Curriculum Year:</label>
-            <select
-              name="year_id"
-              value={curriculum.year_id}
-              onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "8px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-              }}
-            >
-              <option value="">Choose Year</option>
-              {yearList.map((year) => (
-                <option key={year.year_id} value={year.year_id}>
-                  {year.year_description}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: "15px" }}>
-            <label style={{ fontWeight: "bold" }}>Program:</label>
-            <select
-              name="program_id"
-              value={curriculum.program_id}
-              onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "8px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-              }}
-            >
-              <option value="">Choose Program</option>
-              {programList.map((program) => (
-                <option key={program.program_id} value={program.program_id}>
-                  ({program.program_code}) - {program.program_description} {program.major}
-
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            onClick={handleAddCurriculum}
+          {/* LEFT SECTION */}
+          <div
             style={{
-              width: "100%",
-              padding: "10px",
-              backgroundColor: "#1976d2", // typical Material UI primary blue
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
+              flex: 1,
+              padding: "20px",
+              borderRadius: "8px",
+              backgroundColor: "#fff",
+              border: `2px solid ${borderColor}`,
+              boxShadow: "0 0 10px rgba(0,0,0,0.1)",
             }}
           >
-            Insert
-          </button>
+            <h2 style={{ color: "maroon", fontWeight: "bold" }}>
+              Add Curriculum
+            </h2>
 
-        </div>
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ fontWeight: "bold" }}>Curriculum Year:</label>
+              <select
+                name="year_id"
+                value={curriculum.year_id}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                }}
+              >
+                <option value="">Choose Year</option>
+                {yearList.map((year) => (
+                  <option key={year.year_id} value={year.year_id}>
+                    {year.year_description}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* RIGHT SECTION */}
-        <div
-          style={{
-            flex: 2,
-            padding: "20px",
-            borderRadius: "8px",
-            border: `2px solid ${borderColor}`,
-            backgroundColor: "#f9f9f9",
-            boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h3 style={{ color: "maroon", fontWeight: "bold" }}>
-            Curriculum List
-          </h3>
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ fontWeight: "bold" }}>Program:</label>
+              <select
+                name="program_id"
+                value={curriculum.program_id}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                }}
+              >
+                <option value="">Choose Program</option>
+                {programList.map((program) => (
+                  <option key={program.program_id} value={program.program_id}>
+                    ({program.program_code}) - {program.program_description} {program.major}
 
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th
-                  style={{
-                    border: `2px solid ${borderColor}`,
-                    backgroundColor: settings?.header_color || "#1976d2",
-                    color: "#fff",
-                    width: "10%",
-                    textAlign: "center",
-                  }}
-                >
-                  ID
-                </th>
-                <th
-                  style={{
-                    border: `2px solid ${borderColor}`,
-                    backgroundColor: settings?.header_color || "#1976d2",
-                    color: "#fff",
-                    width: "15%",
-                    textAlign: "center",
-                  }}
-                >
-                  Year
-                </th>
-                <th
-                  style={{
-                    border: `2px solid ${borderColor}`,
-                    backgroundColor: settings?.header_color || "#1976d2",
-                    color: "#fff",
-                    width: "55%",
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                    textAlign: "center",
-                  }}
-                >
-                  Program
-                </th>
-                <th
-                  style={{
-                    border: `2px solid ${borderColor}`,
-                    backgroundColor: settings?.header_color || "#1976d2",
-                    color: "#fff",
-                    width: "20%",
-                    textAlign: "center",
-                  }}
-                >
-                  Action
-                </th>
-                <th
-                  style={{
-                    border: `2px solid ${borderColor}`,
-                    backgroundColor: settings?.header_color || "#1976d2",
-                    color: "#fff",
-                    width: "20%",
-                    textAlign: "center",
-                  }}
-                >
-                  Status
-                </th>
-              </tr>
-            </thead>
+            <button
+              onClick={handleAddCurriculum}
+              style={{
+                width: "100%",
+                padding: "10px",
+                backgroundColor: "#1976d2", // typical Material UI primary blue
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Insert
+            </button>
 
-            <tbody>
-              {curriculumList.map((item) => (
-                <tr key={item.curriculum_id}>
-                  <td
+          </div>
+
+          {/* RIGHT SECTION */}
+          <div
+            style={{
+              flex: 2,
+              padding: "20px",
+              borderRadius: "8px",
+              border: `2px solid ${borderColor}`,
+              backgroundColor: "#f9f9f9",
+              boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+            }}
+          >
+            <h3 style={{ color: "maroon", fontWeight: "bold" }}>
+              Curriculum List
+            </h3>
+
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th
                     style={{
                       border: `2px solid ${borderColor}`,
+                      backgroundColor: settings?.header_color || "#1976d2",
+                      color: "#fff",
+                      width: "10%",
                       textAlign: "center",
                     }}
                   >
-                    {item.curriculum_id}
-                  </td>
-                  <td
+                    ID
+                  </th>
+                  <th
                     style={{
                       border: `2px solid ${borderColor}`,
+                      backgroundColor: settings?.header_color || "#1976d2",
+                      color: "#fff",
+                      width: "15%",
                       textAlign: "center",
                     }}
                   >
-                    {item.year_description}
-                  </td>
-                  <td
+                    Year
+                  </th>
+                  <th
                     style={{
                       border: `2px solid ${borderColor}`,
-                      textAlign: "left",
-                      paddingLeft: "8px",
-                    }}
-                  >
-                    ({item.program_code}) - {item.program_description} {item.major}
-                  </td>
-                  <td
-                    style={{
-                      border: `2px solid ${borderColor}`,
+                      backgroundColor: settings?.header_color || "#1976d2",
+                      color: "#fff",
+                      width: "55%",
+
                       textAlign: "center",
                     }}
                   >
-                    <button
-                      onClick={() =>
-                        handleUpdateStatus(item.curriculum_id, item.lock_status)
-                      }
+                    Program
+                  </th>
+                  <th
+                    style={{
+                      border: `2px solid ${borderColor}`,
+                      backgroundColor: settings?.header_color || "#1976d2",
+                      color: "#fff",
+                      width: "20%",
+                      textAlign: "center",
+                    }}
+                  >
+                    Action
+                  </th>
+                  <th
+                    style={{
+                      border: `2px solid ${borderColor}`,
+                      backgroundColor: settings?.header_color || "#1976d2",
+                      color: "#fff",
+                      width: "20%",
+                      textAlign: "center",
+                    }}
+                  >
+                    Status
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredCurriculumList.map((item) => (
+
+                  <tr key={item.curriculum_id}>
+                    <td
                       style={{
-                        backgroundColor:
-                          item.lock_status === 1 ? "green" : "#9E0000",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "6px",
-                        width: "100px",
-                        height: "36px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
+                        border: `2px solid ${borderColor}`,
+                        textAlign: "center",
                       }}
                     >
-                      {item.lock_status === 1 ? "Active" : "Inactive"}
-                    </button>
-                  </td>
-                  <td
-                    style={{
-                      border: `2px solid ${borderColor}`,
-                      textAlign: "center",
-                      fontSize: "14px",
-                      color: item.lock_status === 1 ? "green" : "red",
-                    }}
-                  >
-                    {item.lock_status === 1
-                      ? "This Curriculum is Active"
-                      : "This Curriculum is Deactivated"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+                      {item.curriculum_id}
+                    </td>
+                    <td
+                      style={{
+                        border: `2px solid ${borderColor}`,
+                        textAlign: "center",
+                      }}
+                    >
+                      {item.year_description}
+                    </td>
+                    <td
+                      style={{
+                        border: `2px solid ${borderColor}`,
+                        textAlign: "left",
+                        paddingLeft: "8px",
+                      }}
+                    >
+                      ({item.program_code}) - {item.program_description} {item.major}
+                    </td>
+                    <td
+                      style={{
+                        border: `2px solid ${borderColor}`,
+                        textAlign: "center",
+                      }}
+                    >
+                      <button
+                        onClick={() =>
+                          handleUpdateStatus(item.curriculum_id, item.lock_status)
+                        }
+                        style={{
+                          backgroundColor:
+                            item.lock_status === 1 ? "green" : "#9E0000",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "6px",
+                          width: "100px",
+                          height: "36px",
+                          fontWeight: "bold",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {item.lock_status === 1 ? "Active" : "Inactive"}
+                      </button>
+                    </td>
+                    <td
+                      style={{
+                        border: `2px solid ${borderColor}`,
+                        textAlign: "center",
+                        fontSize: "14px",
+                        color: item.lock_status === 1 ? "green" : "red",
+                      }}
+                    >
+                      {item.lock_status === 1
+                        ? "This Curriculum is Active"
+                        : "This Curriculum is Deactivated"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
 
-          </table>
+            </table>
 
+          </div>
         </div>
-      </div>
-
+      </Box>
       {/* Snackbar */}
       <Snackbar
         open={snackbar.open}

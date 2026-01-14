@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import { SettingsContext } from "../App";
 import axios from "axios";
-import { Typography, Box, Snackbar, Alert } from '@mui/material';
+import { Typography, Box, Snackbar, Alert, TextField } from '@mui/material';
+import SearchIcon from "@mui/icons-material/Search";
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
+
 const YearUpdateForm = () => {
   const settings = useContext(SettingsContext);
 
@@ -18,11 +20,12 @@ const YearUpdateForm = () => {
   const [loading, setLoading] = useState(false);
 
   const [years, setYears] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // 🔍 Search query
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const pageId = 65;
 
-  // 🎨 Apply settings dynamically
+  // Apply dynamic settings
   useEffect(() => {
     if (!settings) return;
     if (settings.title_color) setTitleColor(settings.title_color);
@@ -50,7 +53,7 @@ const YearUpdateForm = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/page_access/${employeeID}/${pageId}`);
       setHasAccess(response.data?.page_privilege === 1);
-    } catch (error) {
+    } catch {
       setHasAccess(false);
       setSnackbar({ open: true, message: "Failed to check access", severity: "error" });
     } finally {
@@ -105,61 +108,88 @@ const YearUpdateForm = () => {
     };
   }, []);
 
-  if (loading || hasAccess === null)return <LoadingOverlay open={loading} message="Loading..." />;
+  if (loading || hasAccess === null) return <LoadingOverlay open={loading} message="Loading..." />;
   if (!hasAccess) return <Unauthorized />;
 
-  return (
-    <Box sx={{ height: 'calc(100vh - 150px)', overflowY: 'auto', pr: 1, }}>
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: "bold",
-          color: titleColor,
-          fontSize: "36px",
-          background: "white",
-          display: "flex",
-          alignItems: "center",
+  // Filter years based on search
+  const filteredYears = years.filter(y =>
+    String(y.year_description).includes(searchQuery)
+  );
 
-        }}
-      >
-        YEAR UPDATE FORM
-      </Typography>
+  return (
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: "bold",
+            color: titleColor,
+            fontSize: "36px",
+            background: "white",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          YEAR UPDATE FORM
+        </Typography>
+
+        {/* Search Bar */}
+        <TextField
+          variant="outlined"
+          placeholder="Search Year Update..."
+          size="small"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{
+            width: 450,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
+      </Box>
 
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
-
+ <Box sx={{ maxHeight: 750, overflowY: "auto" }}>
       <table
         className="w-full border border-gray-300"
-        style={{ border: `2px solid ${borderColor}`, textAlign: "center" }}
+        style={{
+          border: `2px solid ${borderColor}`,
+          textAlign: "center",
+          borderCollapse: "collapse",
+        }}
       >
         <thead>
           <tr style={{ backgroundColor: settings?.header_color || "#1976d2", color: "#ffffff" }}>
-            <th className="p-2 border" style={{ border: `2px solid ${borderColor}`, width: "33.33%" }}>Year</th>
-            <th className="p-2 border" style={{ border: `2px solid ${borderColor}`, width: "33.33%" }}>Status</th>
-            <th className="p-2 border" style={{ border: `2px solid ${borderColor}`, width: "33.33%" }}>Action</th>
+            <th style={{ border: `2px solid ${borderColor}`, width: "33.33%", padding: "12px 8px" }}>Year</th>
+            <th style={{ border: `2px solid ${borderColor}`, width: "33.33%", padding: "12px 8px" }}>Status</th>
+            <th style={{ border: `2px solid ${borderColor}`, width: "33.33%", padding: "12px 8px" }}>Action</th>
           </tr>
         </thead>
         <tbody>
-          {years.map((year) => (
+          {filteredYears.length > 0 ? filteredYears.map(year => (
             <tr
               key={year.year_id}
               style={{
-                backgroundColor: year.status === 1 ? "#d4edda" : "transparent", // ✅ light green if active
-                color: year.status === 1 ? "#155724" : "inherit", // dark green text for contrast
+                backgroundColor: year.status === 1 ? "#d4edda" : "transparent",
+                color: year.status === 1 ? "#155724" : "inherit",
               }}
             >
-              <td className="p-2 border" style={{ border: `2px solid ${borderColor}`, width: "33.33%" }}>
-                {year.year_description}
-              </td>
-              <td className="p-2 border" style={{ border: `2px solid ${borderColor}`, width: "33.33%" }}>
-                {year.status === 1 ? "Active" : "Inactive"}
-              </td>
-              <td className="p-2 border" style={{ border: `2px solid ${borderColor}`, width: "33.33%" }}>
+              <td style={{ border: `2px solid ${borderColor}`, padding: "12px 8px" }}>{year.year_description}</td>
+              <td style={{ border: `2px solid ${borderColor}`, padding: "12px 8px" }}>{year.status === 1 ? "Active" : "Inactive"}</td>
+              <td style={{ border: `2px solid ${borderColor}`, padding: "12px 8px" }}>
                 <button
-                  className={`px-3 py-1 rounded text-white w-[140px]`}
+                  className="px-4 py-2 rounded text-white"
                   style={{
-                    backgroundColor: year.status === 1 ? "#DC2626" : "#16A34A", // red if active, green if inactive
+                    backgroundColor: year.status === 1 ? "#DC2626" : "#16A34A",
                     cursor: "pointer",
+                    minWidth: "140px",
                   }}
                   onClick={() => toggleActivator(year.year_id, year.status)}
                 >
@@ -167,10 +197,16 @@ const YearUpdateForm = () => {
                 </button>
               </td>
             </tr>
-          ))}
+          )) : (
+            <tr>
+              <td colSpan={3} style={{ padding: "20px", color: "#777" }}>
+                No years found.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
-
+      </Box>
 
       <Snackbar
         open={snackbar.open}

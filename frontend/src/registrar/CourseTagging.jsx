@@ -952,15 +952,7 @@ const CourseTagging = () => {
   }
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
-        overflowX: "hidden",
-        paddingRight: 2,
-        backgroundColor: "transparent",
-      }}
-    >
+      <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <Box
         sx={{
           display: "flex",

@@ -13,6 +13,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
+import { TextField } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+
+
+
+
 const ProgramPanel = () => {
   const settings = useContext(SettingsContext);
 
@@ -202,6 +208,18 @@ const ProgramPanel = () => {
     }
   };
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const filteredPrograms = programs.filter((prog) => {
+    const q = searchQuery.toLowerCase();
+
+    return (
+      prog.program_description?.toLowerCase().includes(q) ||
+      prog.program_code?.toLowerCase().includes(q) ||
+      prog.major?.toLowerCase().includes(q)
+    );
+  });
+
+
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
@@ -230,7 +248,7 @@ const ProgramPanel = () => {
   }, []);
 
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -261,7 +279,7 @@ const ProgramPanel = () => {
       borderRadius: "10px",
       boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
       overflowY: "auto",
-      maxHeight: "600px",
+      maxHeight: "750px",
       boxSizing: "border-box",
       border: `2px solid ${borderColor}`,
     },
@@ -282,7 +300,7 @@ const ProgramPanel = () => {
     },
     taggedProgramsContainer: {
       overflowY: "auto",
-      maxHeight: "500px",
+      maxHeight: "750px",
       marginTop: "15px",
     },
     table: { width: "100%", borderCollapse: "collapse" },
@@ -335,14 +353,7 @@ const ProgramPanel = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
-        paddingRight: 1,
-        backgroundColor: "transparent",
-      }}
-    >
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <Box
         sx={{
           display: "flex",
@@ -358,6 +369,27 @@ const ProgramPanel = () => {
         >
           PROGRAM PANEL
         </Typography>
+        <TextField
+          variant="outlined"
+          placeholder="Search Program Description / Code / Major"
+          size="small"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+          }}
+          sx={{
+            width: 450,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
+
       </Box>
 
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
@@ -452,7 +484,8 @@ const ProgramPanel = () => {
                 </tr>
               </thead>
               <tbody>
-                {programs.map((prog) => (
+                {filteredPrograms.map((prog) => (
+
                   <tr key={prog.program_id}>
                     <td style={styles.td}>{prog.program_id}</td>
                     <td style={styles.td}>{prog.program_description}</td>

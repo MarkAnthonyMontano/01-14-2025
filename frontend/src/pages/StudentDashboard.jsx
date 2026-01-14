@@ -362,433 +362,629 @@ const StudentDashboard = ({ profileImage, setProfileImage }) => {
   }
 
 
+
+  const backgroundImage = settings?.bg_image
+    ? `url(${API_BASE_URL}${settings.bg_image})`
+    : "linear-gradient(to right, #fafafa, #f5f5f5)";
+
+
   return (
-    <Box sx={{ p: 4, marginLeft: "-2rem", paddingRight: 8, height: "calc(100vh - 150px)", overflowY: "auto" }}>
-      {/* Header */}
-      <div style={{ display: "none" }}>
-        <CertificateOfRegistration ref={divToPrintRef} student_number={String(personData.student_number || '')} />
-      </div>
+ <Box
+      sx={{
+        height: "calc(100vh - 100px)", // fixed viewport height
+        width: "100%",
+        backgroundImage,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        position: "relative",
+        mt: 2
+      }}
+    >
+      {/* Overlay */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "rgba(255, 249, 236, 0.55)",
+          backdropFilter: "blur(0.5px)",
+          WebkitBackdropFilter: "blur(0.5px)",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
 
-      <Grid container spacing={3}>
-        {/* Student Information */}
-        <Grid item xs={12}>
-          <Card sx={{
-            backgroundColor: "#fff9ec",
-            borderRadius: 1, boxShadow: 3, p: 1, border: `2px solid ${borderColor}`, height: "260px", transition: "transform 0.3s ease, box-shadow 0.3s ease",
-            "&:hover": {
-              transform: "scale(1.05)",
-              boxShadow: 6,
-              
+      {/* Scrollable content */}
+      <Box
+        sx={{
+          position: "relative",
+          zIndex: 1,
+          height: "100%",        // take full height of parent
+          overflowY: "auto",     // ✅ THIS allows scrolling
+          padding: 2,
+        }}
+      >
+        <div style={{ display: "none" }}>
+          <CertificateOfRegistration ref={divToPrintRef} student_number={String(personData.student_number || '')} />
+        </div>
 
-            },
-            marginLeft: "10px"
-          }}>
-            <CardContent>
-              {/* Header Row */}
-              <Stack
-                direction="row"
-                alignItems="center"
+        <Grid container spacing={3}>
+          {/* Student Information */}
+          <Grid item xs={12}>
+            <Card sx={{
+              backgroundColor: "#fff9ec",
+              borderRadius: 1, boxShadow: 3, p: 1, border: `2px solid ${borderColor}`, height: "260px", transition: "transform 0.3s ease, box-shadow 0.3s ease",
+              "&:hover": {
+                transform: "scale(1.05)",
+                boxShadow: 6,
 
-                justifyContent="space-between" // Pushes date to right
-                mb={2}
-              >
-                {/* Left side: Avatar + Name */}
-                <Stack direction="row" alignItems="center" spacing={2}>
-                  {!personData?.profile_image ? (
-                    <PersonIcon sx={{ color: "maroon" }} fontSize="large" />
-                  ) : (
-                    <Box
-                      position="relative"
-                      display="inline-block"
-                      mr={2}
-                      onMouseEnter={() => setHovered(true)}
-                      onMouseLeave={() => setHovered(false)}
-                    >
-                      <Avatar
-                        src={profileImage || `${API_BASE_URL}/uploads/${personData?.profile_image}`}
-                        alt={personData?.fname}
-                        sx={{
-                          width: 90,
-                          height: 90,
-                          border: `2px solid ${borderColor}`,
-                          cursor: "pointer",
-                          mt: -1.5,
-                        }}
-                        onClick={() => fileInputRef.current.click()}
+
+              },
+              marginLeft: "10px"
+            }}>
+              <CardContent>
+                {/* Header Row */}
+                <Stack
+                  direction="row"
+                  alignItems="center"
+
+                  justifyContent="space-between" // Pushes date to right
+                  mb={2}
+                >
+                  {/* Left side: Avatar + Name */}
+                  <Stack direction="row" alignItems="center" spacing={2}>
+                    {!personData?.profile_image ? (
+                      <PersonIcon sx={{ color: "maroon" }} fontSize="large" />
+                    ) : (
+                      <Box
+                        position="relative"
+                        display="inline-block"
+                        mr={2}
+                        onMouseEnter={() => setHovered(true)}
+                        onMouseLeave={() => setHovered(false)}
                       >
-                        {personData?.fname?.[0]}
-                      </Avatar>
-
-                      {hovered && (
-                        <label
-                          onClick={() => fileInputRef.current.click()}
-                          style={{
-                            position: "absolute",
-                            bottom: "0px",
-                            right: "0px",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderRadius: "50%",
-                            backgroundColor: "#ffffff",
+                        <Avatar
+                          src={profileImage || `${API_BASE_URL}/uploads/${personData?.profile_image}`}
+                          alt={personData?.fname}
+                          sx={{
+                            width: 90,
+                            height: 90,
                             border: `2px solid ${borderColor}`,
-                            width: "32px",
-                            height: "32px",
+                            cursor: "pointer",
+                            mt: -1.5,
                           }}
+                          onClick={() => fileInputRef.current.click()}
                         >
-                          <AddCircleIcon
-                            sx={{
-                              color: settings?.header_color || "#1976d2",
-                              fontSize: 28,
+                          {personData?.fname?.[0]}
+                        </Avatar>
+
+                        {hovered && (
+                          <label
+                            onClick={() => fileInputRef.current.click()}
+                            style={{
+                              position: "absolute",
+                              bottom: "0px",
+                              right: "0px",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                               borderRadius: "50%",
+                              backgroundColor: "#ffffff",
+                              border: `2px solid ${borderColor}`,
+                              width: "32px",
+                              height: "32px",
                             }}
-                          />
-                        </label>
-                      )}
+                          >
+                            <AddCircleIcon
+                              sx={{
+                                color: settings?.header_color || "#1976d2",
+                                fontSize: 28,
+                                borderRadius: "50%",
+                              }}
+                            />
+                          </label>
+                        )}
 
 
-                      {/* Hidden file input */}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        style={{ display: "none" }}
-                        onChange={handleFileChange}
-                      />
+                        {/* Hidden file input */}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          ref={fileInputRef}
+                          style={{ display: "none" }}
+                          onChange={handleFileChange}
+                        />
+                      </Box>
+                    )}
+                    <Box>
+                      <Typography variant="h4" fontWeight="bold" sx={{ color: titleColor, }}>
+                        Welcome back! {personData.last_name}, {personData.first_name} {personData.middle_name}
+                      </Typography>
+                      <Typography variant="body1" color="text.secondary">
+                        Student No. : {personData.student_number}
+                      </Typography>
                     </Box>
-                  )}
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold" sx={{ color: titleColor, }}>
-                      Welcome back! {personData.last_name}, {personData.first_name} {personData.middle_name}
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                      Student No. : {personData.student_number}
-                    </Typography>
-                  </Box>
+                  </Stack>
+
+                  {/* Right side: Date */}
+                  <Typography
+                    variant="body3"
+                    color="#000000"
+                    sx={{ fontWeight: 500, marginTop: "-10px" }}
+                  >
+                    Date: {formattedDate}
+                  </Typography>
                 </Stack>
 
-                {/* Right side: Date */}
-                <Typography
-                  variant="body3"
-                  color="#000000"
-                  sx={{ fontWeight: 500, marginTop: "-10px" }}
-                >
-                  Date: {formattedDate}
-                </Typography>
-              </Stack>
+                <Divider sx={{ mb: 2 }} />
 
-              <Divider sx={{ mb: 2 }} />
-
-              {/* Student Details */}
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Program
-                  </Typography>
-                  <Typography fontWeight={500}>
-                    {studentDetails.program_description}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    School Year
-                  </Typography>
-                  <Typography fontWeight={500}>
-                    {sy.current_year}-{sy.next_year}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Status
-                  </Typography>
-                  <Typography fontWeight={500}>{personData.student_status}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Year Level
-                  </Typography>
-                  <Typography fontWeight={500}>{studentDetails.year_level}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Semester
-                  </Typography>
-                  <Typography fontWeight={500}>{sy.semester_description}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Section
-                  </Typography>
-                  <Typography fontWeight={500}>
-                    {studentDetails.program_code}-{studentDetails.section_description}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-
-
-
-        <Grid
-          container
-          spacing={2}
-          sx={{
-            width: "100%",
-            margin: 0,
-            marginLeft: "17px",
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            flexWrap: "nowrap",
-          }}
-        >
-          {/* Calendar */}
-          <Grid item sx={{ flex: "1 1 33%" }}>
-            <Card
-              sx={{
-                border: `2px solid ${borderColor}`,
-                boxShadow: 3,
-                p: 2,
-                height: "400px", // ✅ fixed height
-                display: "flex",
-                borderRadius: "10px",
-                transition: "transform 0.2s ease",
-                "&:hover": { transform: "scale(1.03)" },
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                alignItems: "center",
-              }}
-            >
-              <CardContent sx={{ p: 0, width: "100%" }}>
-                {/* Header with month + year + arrows */}
-                <Grid
-                  container
-                  alignItems="center"
-                  justifyContent="space-between"
-                  sx={{
-                    backgroundColor: settings?.header_color || "#1976d2",
-                    color: "white",
-                    border: `2px solid ${borderColor}`,
-                    borderBottom: "none",
-                    borderRadius: "8px 8px 0 0",
-                    padding: "10px 8px",
-                  }}
-                >
-                  <Grid item>
-                    <IconButton size="small" onClick={handlePrevMonth} sx={{ color: "white" }}>
-                      <ArrowBackIos fontSize="small" />
-                    </IconButton>
-                  </Grid>
-                  <Grid item>
-                    <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                      {date.toLocaleString("default", { month: "long" })} {year}
+                {/* Student Details */}
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Program
+                    </Typography>
+                    <Typography fontWeight={500}>
+                      {studentDetails.program_description}
                     </Typography>
                   </Grid>
-                  <Grid item>
-                    <IconButton size="small" onClick={handleNextMonth} sx={{ color: "white" }}>
-                      <ArrowForwardIos fontSize="small" />
-                    </IconButton>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      School Year
+                    </Typography>
+                    <Typography fontWeight={500}>
+                      {sy.current_year}-{sy.next_year}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Status
+                    </Typography>
+                    <Typography fontWeight={500}>{personData.student_status}</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Year Level
+                    </Typography>
+                    <Typography fontWeight={500}>{studentDetails.year_level}</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Semester
+                    </Typography>
+                    <Typography fontWeight={500}>{sy.semester_description}</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Section
+                    </Typography>
+                    <Typography fontWeight={500}>
+                      {studentDetails.program_code}-{studentDetails.section_description}
+                    </Typography>
                   </Grid>
                 </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
 
-                {/* Calendar Table */}
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(7, 1fr)",
-                    borderLeft: `2px solid ${borderColor}`,
-                    borderRight: `2px solid ${borderColor}`,
-                    borderBottom: `2px solid ${borderColor}`,
-                    borderTop: `2px solid ${borderColor}`,
-                    borderRadius: "0 0 8px 8px",
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* Days of the week */}
-                  {days.map((day, idx) => (
-                    <Box
-                      key={idx}
-                      sx={{
-                        backgroundColor: "#f3f3f3",
-                        textAlign: "center",
-                        py: 1,
-                        fontWeight: "bold",
-                        borderBottom: `1px solid ${borderColor}`,
-                      }}
-                    >
-                      {day}
-                    </Box>
-                  ))}
 
-                  {/* Dates */}
-                  {weeks.map((week, i) =>
-                    week.map((day, j) => {
-                      if (!day) {
-                        return (
+
+          <Grid
+            container
+            spacing={2}
+            sx={{
+              width: "100%",
+              margin: 0,
+              marginLeft: "17px",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              flexWrap: "nowrap",
+            }}
+          >
+            {/* Calendar */}
+            <Grid item sx={{ flex: "1 1 33%" }}>
+              <Card
+                sx={{
+                  border: `2px solid ${borderColor}`,
+                  boxShadow: 3,
+                  p: 2,
+                  height: "400px", // ✅ fixed height
+                  display: "flex",
+                  borderRadius: "10px",
+                  transition: "transform 0.2s ease",
+                  "&:hover": { transform: "scale(1.03)" },
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                }}
+              >
+                <CardContent sx={{ p: 0, width: "100%" }}>
+                  {/* Header with month + year + arrows */}
+                  <Grid
+                    container
+                    alignItems="center"
+                    justifyContent="space-between"
+                    sx={{
+                      backgroundColor: settings?.header_color || "#1976d2",
+                      color: "white",
+                      border: `2px solid ${borderColor}`,
+                      borderBottom: "none",
+                      borderRadius: "8px 8px 0 0",
+                      padding: "10px 8px",
+                    }}
+                  >
+                    <Grid item>
+                      <IconButton size="small" onClick={handlePrevMonth} sx={{ color: "white" }}>
+                        <ArrowBackIos fontSize="small" />
+                      </IconButton>
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                        {date.toLocaleString("default", { month: "long" })} {year}
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <IconButton size="small" onClick={handleNextMonth} sx={{ color: "white" }}>
+                        <ArrowForwardIos fontSize="small" />
+                      </IconButton>
+                    </Grid>
+                  </Grid>
+
+                  {/* Calendar Table */}
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(7, 1fr)",
+                      borderLeft: `2px solid ${borderColor}`,
+                      borderRight: `2px solid ${borderColor}`,
+                      borderBottom: `2px solid ${borderColor}`,
+                      borderTop: `2px solid ${borderColor}`,
+                      borderRadius: "0 0 8px 8px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* Days of the week */}
+                    {days.map((day, idx) => (
+                      <Box
+                        key={idx}
+                        sx={{
+                          backgroundColor: "#f3f3f3",
+                          textAlign: "center",
+                          py: 1,
+                          fontWeight: "bold",
+                          borderBottom: `1px solid ${borderColor}`,
+                        }}
+                      >
+                        {day}
+                      </Box>
+                    ))}
+
+                    {/* Dates */}
+                    {weeks.map((week, i) =>
+                      week.map((day, j) => {
+                        if (!day) {
+                          return (
+                            <Box
+                              key={`${i}-${j}`}
+                              sx={{
+                                height: 45,
+                                backgroundColor: "#fff",
+                              }}
+                            />
+                          );
+                        }
+
+                        const isToday = day === today && month === thisMonth && year === thisYear;
+                        const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+                          day
+                        ).padStart(2, "0")}`;
+                        const isHoliday = holidays[dateKey];
+
+                        const dayCell = (
                           <Box
-                            key={`${i}-${j}`}
                             sx={{
                               height: 45,
-                              backgroundColor: "#fff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              borderRadius: "50%",
+                              backgroundColor: isToday
+                                ? settings?.header_color || "#1976d2"
+                                : isHoliday
+                                  ? "#E8C999"
+                                  : "#fff",
+                              color: isToday ? "white" : "black",
+                              fontWeight: isHoliday ? "bold" : "500",
+                              cursor: isHoliday ? "pointer" : "default",
+                              "&:hover": {
+                                backgroundColor: isHoliday ? "#F5DFA6" : "#000",
+                                color: isHoliday ? "black" : "white",
+                              },
                             }}
-                          />
+                          >
+                            {day}
+                          </Box>
                         );
-                      }
 
-                      const isToday = day === today && month === thisMonth && year === thisYear;
-                      const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-                        day
-                      ).padStart(2, "0")}`;
-                      const isHoliday = holidays[dateKey];
+                        return isHoliday ? (
+                          <Tooltip
+                            key={`${i}-${j}`}
+                            title={
+                              <>
+                                <Typography fontWeight="bold">{isHoliday.localName}</Typography>
+                                <Typography variant="caption">{isHoliday.date}</Typography>
+                              </>
+                            }
+                            arrow
+                            placement="top"
+                          >
+                            {dayCell}
+                          </Tooltip>
+                        ) : (
+                          <React.Fragment key={`${i}-${j}`}>{dayCell}</React.Fragment>
+                        );
+                      })
+                    )}
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
 
-                      const dayCell = (
+
+            {/* Donut Chart */}
+            <Grid item sx={{ flex: "1 1 33%", }}>
+              <Card
+                sx={{
+                  border: `2px solid ${borderColor}`,
+                  borderRadius: 3,
+                  boxShadow: 3,
+                  transition: "transform 0.2s ease",
+                  boxShadow: 3,
+                  "&:hover": { transform: "scale(1.03)" },
+                  p: 2,
+                  height: "400px",
+                }}
+              >
+                <CardContent sx={{ textAlign: "center" }}>
+                  <Typography variant="h6" gutterBottom>
+                    Course Status
+                  </Typography>
+                  <Divider sx={{ mb: 2 }} />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+
+                      alignItems: "center",
+                      mb: 2,
+                    }}
+                  >
+                    <svg width="200" height="200" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#eee" strokeWidth="3" />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.9155"
+                        fill="none"
+                        stroke="green"
+                        strokeWidth="3"
+                        strokeDasharray={`${passedPercent} ${100 - passedPercent}`}
+                        strokeDashoffset="25"
+                      />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.9155"
+                        fill="none"
+                        stroke="red"
+                        strokeWidth="3"
+                        strokeDasharray={`${failedPercent} ${100 - failedPercent}`}
+                        strokeDashoffset={25 - passedPercent}
+                      />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.9155"
+                        fill="none"
+                        stroke="orange"
+                        strokeWidth="3"
+                        strokeDasharray={`${incompletePercent} ${100 - incompletePercent}`}
+                        strokeDashoffset={25 - passedPercent - failedPercent}
+                      />
+                      <text x="50%" y="50%" textAnchor="middle" dy=".3em" fontSize="4">
+                        {courseCount.initial_course} Courses
+                      </text>
+                    </svg>
+                  </Box>
+
+                  <Stack direction="row" spacing={3} justifyContent="center">
+                    <Typography sx={{ fontSize: "14px" }} color="success.main">
+                      Passed: {passed}
+                    </Typography>
+                    <Typography sx={{ fontSize: "14px" }} color="error.main">
+                      Failed: {failed}
+                    </Typography>
+                    <Typography sx={{ fontSize: "14px" }} color="warning.main">
+                      Incomplete: {incomplete}
+                    </Typography>
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Announcements */}
+            <Grid item sx={{ flex: "1 1 33%" }}>
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  marginLeft: "10px",
+                  boxShadow: 3,
+                  p: 2,
+                  height: "400px",
+                  display: "flex",
+                  border: `2px solid ${borderColor}`,
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                    boxShadow: 6,
+                  },
+                }}
+              >
+                <CardContent sx={{ width: "100%" }}>
+                  <Typography sx={{ textAlign: "center" }} variant="h6" gutterBottom>
+                    Announcements
+                  </Typography>
+                  <Divider sx={{ mb: 2 }} />
+
+                  {announcements.length === 0 ? (
+                    <Typography variant="body2" color="text.secondary" align="center">
+                      No active announcements.
+                    </Typography>
+                  ) : (
+                    <Box sx={{ maxHeight: 260, overflowY: "auto" }}>
+                      {announcements.map((a) => (
                         <Box
+                          key={a.id}
                           sx={{
-                            height: 45,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderRadius: "50%",
-                            backgroundColor: isToday
-                              ? settings?.header_color || "#1976d2"
-                              : isHoliday
-                                ? "#E8C999"
-                                : "#fff",
-                            color: isToday ? "white" : "black",
-                            fontWeight: isHoliday ? "bold" : "500",
-                            cursor: isHoliday ? "pointer" : "default",
-                            "&:hover": {
-                              backgroundColor: isHoliday ? "#F5DFA6" : "#000",
-                              color: isHoliday ? "black" : "white",
-                            },
+                            mb: 2,
+                            p: 1,
+                            width: "100%",
+                            borderRadius: 2,
+                            border: `2px solid ${borderColor}`,
+                            backgroundColor: "#fff8f6",
                           }}
                         >
-                          {day}
-                        </Box>
-                      );
+                          <Typography variant="subtitle2" sx={{ color: "maroon", fontWeight: "bold" }}>
+                            {a.title}
+                          </Typography>
+                          <Typography variant="body2" sx={{ mb: 1 }}>
+                            {a.content}
+                          </Typography>
 
-                      return isHoliday ? (
-                        <Tooltip
-                          key={`${i}-${j}`}
-                          title={
+                          {a.file_path && (
                             <>
-                              <Typography fontWeight="bold">{isHoliday.localName}</Typography>
-                              <Typography variant="caption">{isHoliday.date}</Typography>
+                              <img
+                                src={`${API_BASE_URL}/uploads/${a.file_path}`}
+                                alt={a.title}
+                                style={{
+                                  width: "100%",
+                                  maxHeight: "120px",
+                                  objectFit: "cover",
+                                  borderRadius: "6px",
+                                  marginBottom: "6px",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => setOpenImage(`${API_BASE_URL}/uploads/${a.file_path}`)}
+                              />
+
+                              <Dialog
+                                open={Boolean(openImage)}
+                                onClose={() => setOpenImage(null)}
+                                fullScreen
+                                PaperProps={{
+                                  style: {
+                                    backgroundColor: "transparent",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    position: "relative",
+                                    boxShadow: "none",
+                                    cursor: "pointer",
+                                  },
+                                }}
+                              >
+                                <Box
+                                  onClick={() => setOpenImage(null)}
+                                  sx={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    width: "100%",
+                                    height: "100%",
+                                    zIndex: 1,
+                                  }}
+                                />
+
+                                <IconButton
+                                  onClick={() => setOpenImage(null)}
+                                  sx={{
+                                    position: "absolute",
+                                    top: 20,
+                                    left: 20,
+                                    backgroundColor: "white",
+                                    width: 70,
+                                    height: 70,
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    zIndex: 2,
+                                    "&:hover": { backgroundColor: "#f5f5f5" },
+                                  }}
+
+                                >
+                                  <KeyboardBackspaceIcon sx={{ fontSize: 50, color: "black" }} />
+                                </IconButton>
+
+                                <Box
+                                  onClick={(e) => e.stopPropagation()}
+                                  sx={{
+                                    position: "relative",
+                                    zIndex: 2,
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    maxWidth: "100%",
+                                    maxHeight: "100%",
+                                  }}
+                                >
+                                  <img
+                                    src={openImage}
+                                    alt="Preview"
+                                    style={{
+                                      maxWidth: "100%",
+                                      maxHeight: "90%",
+                                      objectFit: "contain",
+                                    }}
+                                  />
+                                </Box>
+                              </Dialog>
                             </>
-                          }
-                          arrow
-                          placement="top"
-                        >
-                          {dayCell}
-                        </Tooltip>
-                      ) : (
-                        <React.Fragment key={`${i}-${j}`}>{dayCell}</React.Fragment>
-                      );
-                    })
+                          )}
+
+                          <Typography variant="caption" color="text.secondary">
+                            Expires: {new Date(a.expires_at).toLocaleDateString("en-US")}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
                   )}
-                </Box>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
+        </Grid>
 
-
-          {/* Donut Chart */}
-          <Grid item sx={{ flex: "1 1 33%", }}>
-            <Card
-              sx={{
-                border: `2px solid ${borderColor}`,
-                borderRadius: 3,
-                boxShadow: 3,
-                transition: "transform 0.2s ease",
-                boxShadow: 3,
-                "&:hover": { transform: "scale(1.03)" },
-                p: 2,
-                height: "400px",
-              }}
-            >
-              <CardContent sx={{ textAlign: "center" }}>
-                <Typography variant="h6" gutterBottom>
-                  Course Status
-                </Typography>
-                <Divider sx={{ mb: 2 }} />
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-
-                    alignItems: "center",
-                    mb: 2,
-                  }}
-                >
-                  <svg width="200" height="200" viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#eee" strokeWidth="3" />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      fill="none"
-                      stroke="green"
-                      strokeWidth="3"
-                      strokeDasharray={`${passedPercent} ${100 - passedPercent}`}
-                      strokeDashoffset="25"
-                    />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      fill="none"
-                      stroke="red"
-                      strokeWidth="3"
-                      strokeDasharray={`${failedPercent} ${100 - failedPercent}`}
-                      strokeDashoffset={25 - passedPercent}
-                    />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      fill="none"
-                      stroke="orange"
-                      strokeWidth="3"
-                      strokeDasharray={`${incompletePercent} ${100 - incompletePercent}`}
-                      strokeDashoffset={25 - passedPercent - failedPercent}
-                    />
-                    <text x="50%" y="50%" textAnchor="middle" dy=".3em" fontSize="4">
-                      {courseCount.initial_course} Courses
-                    </text>
-                  </svg>
-                </Box>
-
-                <Stack direction="row" spacing={3} justifyContent="center">
-                  <Typography sx={{ fontSize: "14px" }} color="success.main">
-                    Passed: {passed}
-                  </Typography>
-                  <Typography sx={{ fontSize: "14px" }} color="error.main">
-                    Failed: {failed}
-                  </Typography>
-                  <Typography sx={{ fontSize: "14px" }} color="warning.main">
-                    Incomplete: {incomplete}
-                  </Typography>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Announcements */}
-          <Grid item sx={{ flex: "1 1 33%" }}>
+        <Grid container spacing={5} sx={{ mt: "-20px" }}>
+          {/* Certificate of Registration */}
+          <Grid item xs={12} md={6}>
             <Card
               sx={{
                 borderRadius: 3,
-                marginLeft: "10px",
                 boxShadow: 3,
-                p: 2,
-                height: "400px",
                 display: "flex",
-               border: `2px solid ${borderColor}`,
+                marginLeft: "10px",
                 flexDirection: "column",
-                justifyContent: "center",
+                border: `2px solid ${borderColor}`,
+                backgroundColor: "#fffaf5",
                 alignItems: "center",
+                justifyContent: "center",
+                minHeight: 170,
+                width: "100%",
                 transition: "transform 0.3s ease, box-shadow 0.3s ease",
                 "&:hover": {
                   transform: "scale(1.05)",
@@ -796,209 +992,53 @@ const StudentDashboard = ({ profileImage, setProfileImage }) => {
                 },
               }}
             >
-              <CardContent sx={{ width: "100%" }}>
-                <Typography sx={{ textAlign: "center" }} variant="h6" gutterBottom>
-                  Announcements
+              <CardContent sx={{ textAlign: "center" }}>
+                <SchoolIcon sx={{ color: subtitleColor, }} fontSize="large" />
+                <Typography variant="h6" gutterBottom sx={{ mt: 1 }}>
+                  Certificate of Registration
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<DownloadIcon />}
+                  sx={{ backgroundColor: settings?.header_color || "#1976d2", }}
+                  onClick={printDiv}
+                >
+                  Download (Student's Copy)
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Fees */}
+          <Grid item xs={12} md={6}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                boxShadow: 3,
+                border: `2px solid ${borderColor}`,
+                backgroundColor: "#fffaf5",
+                minHeight: 170,
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                  boxShadow: 6,
+                },
+                width: "100%",
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Fees
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
-
-                {announcements.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary" align="center">
-                    No active announcements.
-                  </Typography>
-                ) : (
-                  <Box sx={{ maxHeight: 260, overflowY: "auto" }}>
-                    {announcements.map((a) => (
-                      <Box
-                        key={a.id}
-                        sx={{
-                          mb: 2,
-                          p: 1,
-                          width: "100%",
-                          borderRadius: 2,
-                          border: `2px solid ${borderColor}`,
-                          backgroundColor: "#fff8f6",
-                        }}
-                      >
-                        <Typography variant="subtitle2" sx={{ color: "maroon", fontWeight: "bold" }}>
-                          {a.title}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                          {a.content}
-                        </Typography>
-
-                        {a.file_path && (
-                          <>
-                            <img
-                              src={`${API_BASE_URL}/uploads/${a.file_path}`}
-                              alt={a.title}
-                              style={{
-                                width: "100%",
-                                maxHeight: "120px",
-                                objectFit: "cover",
-                                borderRadius: "6px",
-                                marginBottom: "6px",
-                                cursor: "pointer",
-                              }}
-                              onClick={() => setOpenImage(`${API_BASE_URL}/uploads/${a.file_path}`)}
-                            />
-
-                            <Dialog
-                              open={Boolean(openImage)}
-                              onClose={() => setOpenImage(null)}
-                              fullScreen
-                              PaperProps={{
-                                style: {
-                                  backgroundColor: "transparent",
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  position: "relative",
-                                  boxShadow: "none",
-                                  cursor: "pointer",
-                                },
-                              }}
-                            >
-                              <Box
-                                onClick={() => setOpenImage(null)}
-                                sx={{
-                                  position: "absolute",
-                                  top: 0,
-                                  left: 0,
-                                  width: "100%",
-                                  height: "100%",
-                                  zIndex: 1,
-                                }}
-                              />
-
-                              <IconButton
-                                onClick={() => setOpenImage(null)}
-                                sx={{
-                                  position: "absolute",
-                                  top: 20,
-                                  left: 20,
-                                  backgroundColor: "white",
-                                  width: 70,
-                                  height: 70,
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  zIndex: 2,
-                                  "&:hover": { backgroundColor: "#f5f5f5" },
-                                }}
-
-                              >
-                                <KeyboardBackspaceIcon sx={{ fontSize: 50, color: "black" }} />
-                              </IconButton>
-
-                              <Box
-                                onClick={(e) => e.stopPropagation()}
-                                sx={{
-                                  position: "relative",
-                                  zIndex: 2,
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  maxWidth: "100%",
-                                  maxHeight: "100%",
-                                }}
-                              >
-                                <img
-                                  src={openImage}
-                                  alt="Preview"
-                                  style={{
-                                    maxWidth: "100%",
-                                    maxHeight: "90%",
-                                    objectFit: "contain",
-                                  }}
-                                />
-                              </Box>
-                            </Dialog>
-                          </>
-                        )}
-
-                        <Typography variant="caption" color="text.secondary">
-                          Expires: {new Date(a.expires_at).toLocaleDateString("en-US")}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                )}
               </CardContent>
             </Card>
           </Grid>
         </Grid>
-      </Grid>
-
-      <Grid container spacing={5} sx={{ mt: "-20px" }}>
-        {/* Certificate of Registration */}
-        <Grid item xs={12} md={6}>
-          <Card
-            sx={{
-              borderRadius: 3,
-              boxShadow: 3,
-              display: "flex",
-              marginLeft: "10px",
-              flexDirection: "column",
-              border: `2px solid ${borderColor}`,
-              backgroundColor: "#fffaf5",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: 170,
-              width: "100%",
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              "&:hover": {
-                transform: "scale(1.05)",
-                boxShadow: 6,
-              },
-            }}
-          >
-            <CardContent sx={{ textAlign: "center" }}>
-              <SchoolIcon sx={{ color: subtitleColor, }} fontSize="large" />
-              <Typography variant="h6" gutterBottom sx={{ mt: 1 }}>
-                Certificate of Registration
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<DownloadIcon />}
-                sx={{ backgroundColor: settings?.header_color || "#1976d2", }}
-                onClick={printDiv}
-              >
-                Download (Student's Copy)
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Fees */}
-        <Grid item xs={12} md={6}>
-          <Card
-            sx={{
-              borderRadius: 3,
-              boxShadow: 3,
-              border: `2px solid ${borderColor}`,
-              backgroundColor: "#fffaf5",
-              minHeight: 170,
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              "&:hover": {
-                transform: "scale(1.05)",
-                boxShadow: 6,
-              },
-              width: "100%",
-            }}
-          >
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Fees
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
 
 
-    </Box >
+      </Box >
+    </Box>
   );
 };
 

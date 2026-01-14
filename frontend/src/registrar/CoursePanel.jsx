@@ -12,6 +12,10 @@ import {
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
+
+import TextField from "@mui/material/TextField";
+import SearchIcon from "@mui/icons-material/Search";
+
 const CoursePanel = () => {
   const settings = useContext(SettingsContext);
 
@@ -203,6 +207,21 @@ const CoursePanel = () => {
     }
   };
 
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredCourses = courseList.filter((c) =>
+    [
+      c.course_description,
+      c.course_code,
+      c.prereq,
+      c.course_unit?.toString(),
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
+
   const handleEdit = (item) => {
     setCourse({
       course_code: item.course_code,
@@ -271,6 +290,9 @@ const CoursePanel = () => {
 
 
 
+
+
+
   const handleClose = (_, reason) => {
     if (reason === "clickaway") return;
     setSnack((prev) => ({ ...prev, open: false }));
@@ -278,7 +300,7 @@ const CoursePanel = () => {
 
 
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -304,9 +326,9 @@ const CoursePanel = () => {
       border: `2px solid ${borderColor}`,
       borderRadius: 2,
       textAlign: "center",
-      height: 700
+      height: 750
     },
-    inputGroup: { marginBottom: "15px" },
+    inputGroup: { marginBottom: "15px", },
     label: { display: "block", marginBottom: "5px", fontWeight: "bold" },
     input: {
       width: "100%",
@@ -326,7 +348,7 @@ const CoursePanel = () => {
       margin: "0 auto",
     },
     tableContainer: {
-      maxHeight: "650px",
+      maxHeight: "700px",
       overflowY: "auto",
       border: "1px solid #ccc",
       borderRadius: "4px",
@@ -345,14 +367,7 @@ const CoursePanel = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
-        paddingRight: 1,
-        backgroundColor: "transparent",
-      }}
-    >
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <Box
         sx={{
           display: "flex",
@@ -372,6 +387,29 @@ const CoursePanel = () => {
         >
           COURSE PANEL
         </Typography>
+
+        <TextField
+          variant="outlined"
+          placeholder="Search Year / Program Code / Description / Major"
+          size="small"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+          }}
+          sx={{
+            width: 450,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            mb: 2,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
+
       </Box>
 
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
@@ -406,40 +444,41 @@ const CoursePanel = () => {
             </div>
           ))}
 
-          <div style={styles.inputGroup}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="iscomputer_lab"
-                  checked={course.iscomputer_lab === 1}
-                  disabled={course.isnon_computer_lab === 1}
-                  onChange={handleCheckbox}
-                  sx={{
-                    padding: 0,
-                    "& .MuiSvgIcon-root": { fontSize: 30, ml: "10px", },
-                  }}
-                />
-              }
-              label="Is Computer Lab"
-            />
+          <Box style={{textAlign: "center"}}>
+            <div style={styles.inputGroup}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="iscomputer_lab"
+                    checked={course.iscomputer_lab === 1}
+                    disabled={course.isnon_computer_lab === 1}
+                    onChange={handleCheckbox}
+                    sx={{
+                      padding: 0,
+                      "& .MuiSvgIcon-root": { fontSize: 30, ml: "10px", },
+                    }}
+                  />
+                }
+                label="Is Computer Lab"
+              />
 
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="isnon_computer_lab"
-                  checked={course.isnon_computer_lab === 1}
-                  disabled={course.iscomputer_lab === 1}
-                  onChange={handleCheckbox}
-                  sx={{
-                    padding: 0,
-                    "& .MuiSvgIcon-root": { fontSize: 30 },
-                  }}
-                />
-              }
-              label="Is Non-Computer Lab"
-            />
-          </div>
-
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="isnon_computer_lab"
+                    checked={course.isnon_computer_lab === 1}
+                    disabled={course.iscomputer_lab === 1}
+                    onChange={handleCheckbox}
+                    sx={{
+                      padding: 0,
+                      "& .MuiSvgIcon-root": { fontSize: 30 },
+                    }}
+                  />
+                }
+                label="Is Non-Computer Lab"
+              />
+            </div>
+          </Box>
           <button
             style={{ ...styles.button, backgroundColor: "#1976d2" }}
             onClick={editMode ? handleUpdateCourse : handleAddingCourse}
@@ -486,7 +525,8 @@ const CoursePanel = () => {
                 </tr>
               </thead>
               <tbody>
-                {courseList.map((c) => (
+                {filteredCourses.map((c) => (
+
                   <tr key={c.course_id}>
                     <td style={styles.tableCell}>{c.course_id}</td>
                     <td style={styles.tableCell}>{c.course_description}</td>

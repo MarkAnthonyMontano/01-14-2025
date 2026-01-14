@@ -19,6 +19,8 @@ import {
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
+
+import SearchIcon from "@mui/icons-material/Search";
 const SuperAdminRoomRegistration = () => {
   const settings = useContext(SettingsContext);
 
@@ -179,6 +181,17 @@ const SuperAdminRoomRegistration = () => {
     }
   };
 
+  // 🔹 Add search state
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // 🔹 Filtered rooms based on search
+  const filteredRooms = roomList.filter(
+    (room) =>
+      room.room_description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (room.building_description || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+
   // 🔹 Edit room
   const handleEditRoom = (room) => {
     setEditingRoom(room);
@@ -269,7 +282,7 @@ const SuperAdminRoomRegistration = () => {
 
   // 🔹 Loading / Unauthorized states
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -277,24 +290,9 @@ const SuperAdminRoomRegistration = () => {
   }
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
-        paddingRight: 1,
-        backgroundColor: "transparent",
-      }}
-    >
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          mb: 2,
-        }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', mb: 2 }}>
         <Typography
           variant="h4"
           sx={{
@@ -305,6 +303,28 @@ const SuperAdminRoomRegistration = () => {
         >
           ROOM REGISTRATION
         </Typography>
+
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search by Room or Building..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{
+            width: 450,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            mb: 2,
+            mt: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
+
       </Box>
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
@@ -372,7 +392,7 @@ const SuperAdminRoomRegistration = () => {
               Registered Rooms
             </Typography>
 
-            <Box sx={{ maxHeight: 400, overflowY: "auto" }}>
+            <Box sx={{ maxHeight: 750, overflowY: "auto" }}>
               <Table stickyHeader size="small">
                 <TableHead >
                   <TableRow >
@@ -383,7 +403,7 @@ const SuperAdminRoomRegistration = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {roomList.map((room, index) => (
+                  {filteredRooms.map((room, index) => (
                     <TableRow key={index}>
                       <TableCell sx={{ border: `2px solid ${borderColor}` }}>{room.room_id}</TableCell>
                       <TableCell sx={{ border: `2px solid ${borderColor}` }}>{room.building_description || "N/A"}</TableCell>
@@ -396,7 +416,6 @@ const SuperAdminRoomRegistration = () => {
                             backgroundColor: "green",
                             color: "white",
                             mr: 1,
-
                           }}
                           onClick={() => handleEditRoom(room)}
                         >
@@ -413,11 +432,11 @@ const SuperAdminRoomRegistration = () => {
                         >
                           Delete
                         </Button>
-
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
+
               </Table>
             </Box>
           </Paper>

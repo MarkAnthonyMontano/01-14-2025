@@ -16,6 +16,9 @@ import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
 
+import TextField from "@mui/material/TextField";
+import SearchIcon from "@mui/icons-material/Search";
+
 const DepartmentSection = () => {
 
   const settings = useContext(SettingsContext);
@@ -72,6 +75,22 @@ const DepartmentSection = () => {
   const [hasAccess, setHasAccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sectionSearch, setSectionSearch] = useState("");
+
+  const [deptSearchQuery, setDeptSearchQuery] = useState("");
+
+  const filteredDepartmentSections = departmentSections.filter((section) =>
+    [
+      section.year_description,
+      section.program_code,
+      section.program_description,
+      section.major,
+      section.section_description,
+      section.dsstat === 1 ? "active" : "inactive",
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(deptSearchQuery.toLowerCase())
+  );
 
   const filteredSectionsList = sectionsList.filter((section) =>
     section.description.toLowerCase().includes(sectionSearch.toLowerCase())
@@ -206,7 +225,7 @@ const DepartmentSection = () => {
 
   // Put this at the very bottom before the return 
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -216,8 +235,7 @@ const DepartmentSection = () => {
   }
 
   return (
-    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", }}>
-
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <Box
         sx={{
           display: 'flex',
@@ -238,6 +256,27 @@ const DepartmentSection = () => {
         >
           DEPARTMENT SECTION PANEL
         </Typography>
+        <TextField
+          variant="outlined"
+          placeholder="Search Year / Program Code / Description / Major"
+          size="small"
+          value={deptSearchQuery}
+          onChange={(e) => {
+            setDeptSearchQuery(e.target.value);
+          }}
+          sx={{
+            width: 450,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            mb: 2,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
 
 
 
@@ -361,7 +400,7 @@ const DepartmentSection = () => {
             Department Sections
           </Typography>
 
-          <Box sx={{ overflowY: 'auto', maxHeight: 400 }}>
+          <Box sx={{ overflowY: 'auto', maxHeight: 750 }}>
             <table
               style={{
                 width: "100%",
@@ -407,7 +446,8 @@ const DepartmentSection = () => {
                 </tr>
               </thead>
               <tbody>
-                {departmentSections.map((section, index) => (
+                {filteredDepartmentSections.map((section, index) => (
+
                   <tr key={`dept-${section.ds_id || section.id || index}`}>
                     <td
                       style={{

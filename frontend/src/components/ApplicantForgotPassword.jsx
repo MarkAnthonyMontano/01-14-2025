@@ -57,12 +57,40 @@ const ApplicantForgotPassword = () => {
       socket.current.disconnect();
     };
   }, []);
+  const [resetSent, setResetSent] = useState(false);
+
+  useEffect(() => {
+    if (!socket.current) return;
+
+    const handler = (data) => {
+      setSnack({
+        open: true,
+        message: data.message,
+        severity: data.success ? "success" : "error",
+      });
+
+      // ✅ lock button if successful
+      if (data.success) {
+        setResetSent(true);
+      }
+    };
+
+    socket.current.on("password-reset-result-applicant", handler);
+
+    return () => {
+      socket.current.off("password-reset-result-applicant", handler);
+    };
+  }, []);
+
 
   const handleReset = () => {
+    if (resetSent) return;
+
     if (!email) {
       setSnack({ open: true, message: "Please enter your email.", severity: "warning" });
       return;
     }
+
     if (!capVal) {
       setSnack({
         open: true,
@@ -71,37 +99,26 @@ const ApplicantForgotPassword = () => {
       });
       return;
     }
+
     socket.current.emit("forgot-password-applicant", email);
   };
 
-  useEffect(() => {
-    const listener = (data) => {
-      setSnack({
-        open: true,
-        message: data.message,
-        severity: data.success ? "success" : "error",
-      });
-    };
-    socket.current.on("password-reset-result-applicant", listener);
-    return () => socket.off("password-reset-result-applicant", listener);
-  }, []);
+
 
   const handleClose = (_, reason) => {
     if (reason === "clickaway") return;
     setSnack((prev) => ({ ...prev, open: false }));
   };
 
-  // ✅ Dynamic background and logo (same as registrar)
   const backgroundImage = settings?.bg_image
-    ? `url(${API_BASE_URL}/${settings.bg_image})`
-    : "url(/default-bg.jpg)";
+    ? `url(${API_BASE_URL}${settings.bg_image})`
+    : "linear-gradient(to right, #f5f5f5, #fafafa)";
   const logoSrc = settings?.logo_url
     ? `${API_BASE_URL}${settings.logo_url}`
     : Logo;
 
 
-
-  const isButtonDisabled = !email || !capVal;
+  const isButtonDisabled = !email || !capVal || resetSent;
 
   return (
     <Box
@@ -191,14 +208,15 @@ const ApplicantForgotPassword = () => {
                   width: "100%",
                   py: 1.5,
                   backgroundColor: mainButtonColor,
-                  border: `2px solid ${borderColor}`, 
+                  border: `2px solid ${borderColor}`,
                   color: "white",
                   height: "50px",
-                  borderRadius: "10px"
+                  borderRadius: "10px",
                 }}
               >
-                Reset Password
+                {resetSent ? "Email Sent" : "Reset Password"}
               </Button>
+
             </Box>
 
             {/* Back to login */}

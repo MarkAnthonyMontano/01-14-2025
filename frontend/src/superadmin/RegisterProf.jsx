@@ -408,7 +408,7 @@ const RegisterProf = () => {
 
 
   return (
-    <Box sx={{ height: "calc(100vh - 150px)",  ml: 2, overflowY: "auto", pr: 1, px: 1 }}>
+     <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <div style={{ height: "10px" }}></div>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} >
         {/* Left: Header */}

@@ -298,16 +298,47 @@ const FacultyDashboard = ({ profileImage, setProfileImage }) => {
     }
   };
 
+ const backgroundImage = settings?.bg_image
+    ? `url(${API_BASE_URL}${settings.bg_image})`
+    : "linear-gradient(to right, #fafafa, #f5f5f5)";
+
+
   return (
     <Box
       sx={{
-        p: 4,
-        marginLeft: "-2rem",
-        paddingRight: 8,
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
+        height: "calc(100vh - 100px)", // fixed viewport height
+        width: "100%",
+        backgroundImage,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        position: "relative",
+        mt: 2
       }}
     >
+      {/* Overlay */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "rgba(255, 249, 236, 0.55)",
+          backdropFilter: "blur(0.5px)",
+          WebkitBackdropFilter: "blur(0.5px)",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Scrollable content */}
+      <Box
+        sx={{
+          position: "relative",
+          zIndex: 1,
+          height: "100%",        // take full height of parent
+          overflowY: "auto",     // ✅ THIS allows scrolling
+          padding: 2,
+        }}
+      >
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Card
@@ -1072,6 +1103,7 @@ const FacultyDashboard = ({ profileImage, setProfileImage }) => {
           </Card>
         </Box>
       </Box>
+    </Box>
     </Box>
   );
 };

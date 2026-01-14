@@ -14,7 +14,8 @@ import {
     TableRow,
     TableCell,
     TableBody,
-    TableContainer
+    TableContainer,
+    Grid, Card, CardContent, Chip, LinearProgress
 } from "@mui/material";
 import axios from "axios";
 import API_BASE_URL from "../apiConfig";
@@ -111,6 +112,20 @@ const ProgramSlotLimit = () => {
         }
     }, []);
 
+    const groupedByDepartment = slots.reduce((acc, row) => {
+        if (!acc[row.dprtmnt_id]) {
+            acc[row.dprtmnt_id] = {
+                dprtmnt_name: row.dprtmnt_name,
+                dprtmnt_code: row.dprtmnt_code,
+                programs: []
+            };
+        }
+        acc[row.dprtmnt_id].programs.push(row);
+        return acc;
+    }, {});
+
+
+
     const checkAccess = async (employeeID) => {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/page_access/${employeeID}/${pageId}`);
@@ -185,7 +200,7 @@ const ProgramSlotLimit = () => {
 
 
     return (
-        <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", pr: 2, mr: 2 }}>
+          <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography
                     variant="h4"
@@ -304,21 +319,28 @@ const ProgramSlotLimit = () => {
             </Paper>
 
             {/* Slot Summary */}
-            <Paper>
-                <Table>
-                    <TableHead sx={{ backgroundColor: settings?.header_color || "#1976d2", }}>
-                        <TableRow>
-                            <TableCell sx={{ color: "white", fontWeight: "bold", border: `2px solid ${borderColor}`, textAlign: "center" }}>Program</TableCell>
-                            <TableCell sx={{ color: "white", fontWeight: "bold", border: `2px solid ${borderColor}`, textAlign: "center" }}>Max Slots</TableCell>
-                            <TableCell sx={{ color: "white", fontWeight: "bold", border: `2px solid ${borderColor}`, textAlign: "center" }}>Applicants</TableCell>
-                            <TableCell sx={{ color: "white", fontWeight: "bold", border: `2px solid ${borderColor}`, textAlign: "center" }}>Remaining</TableCell>
-                            <TableCell sx={{ color: "white", fontWeight: "bold", border: `2px solid ${borderColor}`, textAlign: "center" }}>Status</TableCell>
-                            <TableCell sx={{ color: "white", fontWeight: "bold", border: `2px solid ${borderColor}`, textAlign: "center" }}>Action</TableCell>
-                        </TableRow>
-                    </TableHead>
+            {/* Slot Summary */}
+            {Object.values(groupedByDepartment).map((dept) => (
+                <Box key={dept.dprtmnt_code} mb={5}>
 
-                    <TableBody>
-                        {slots
+                    {/* 🔹 DEPARTMENT DIVIDER */}
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            fontWeight: "bold",
+                            mb: 2,
+                            mt: 3,
+                            color: titleColor,
+                            borderBottom: `3px solid ${borderColor}`,
+                            pb: 1,
+                        }}
+                    >
+                        {dept.dprtmnt_name} ({dept.dprtmnt_code})
+                    </Typography>
+
+                    {/* 🔹 PROGRAM CARDS */}
+                    <Grid container spacing={3} columns={5}>
+                        {dept.programs
                             .filter((row) =>
                                 `${row.program_code} ${row.program_description} ${row.major}`
                                     .toLowerCase()
@@ -326,58 +348,124 @@ const ProgramSlotLimit = () => {
                             )
                             .map((row) => {
                                 const remaining = row.max_slots - row.total_applicants;
-                                return (
-                                    <TableRow
-                                        key={row.program_id}
-                                        sx={{
-                                            backgroundColor: remaining <= 0 ? "#ffcccc" : "inherit", // light red if full
-                                            "&:hover": {
-                                                backgroundColor: remaining <= 0 ? "#ffbbbb" : "#f5f5f5", // slightly darker on hover
-                                            },
-                                        }}
-                                    >
-                                        <TableCell sx={{ color: "black", border: `2px solid ${borderColor}`, textAlign: "left" }}>
-                                            ({row.program_code}) {row.program_description} {row.major}
-                                        </TableCell>
-                                        <TableCell sx={{ color: "black", border: `2px solid ${borderColor}`, textAlign: "center" }}>{row.max_slots}</TableCell>
-                                        <TableCell sx={{ color: "black", border: `2px solid ${borderColor}`, textAlign: "center" }}>{row.total_applicants}</TableCell>
-                                        <TableCell sx={{ color: "black", border: `2px solid ${borderColor}`, textAlign: "center" }}>{remaining}</TableCell>
-                                        <TableCell
+                                const percentage = (row.total_applicants / row.max_slots) * 100;
 
+                                return (
+                                    <Grid item xs={1} key={row.program_id}>
+
+                                        {/* 🔸 YOUR EXISTING CARD — UNCHANGED */}
+                                        <Card
                                             sx={{
-                                                color: remaining <= 0 ? "red" : "green",
-                                                fontWeight: "bold",
-                                                border: `2px solid ${borderColor}`,
-                                                textAlign: "center"
+                                                height: 340,
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                borderRadius: 3,
+                                                border: `1px solid ${borderColor}`,
+                                                boxShadow: 3,
+                                                transition: "0.25s ease",
+                                                "&:hover": {
+                                                    transform: "translateY(-3px)",
+                                                    boxShadow: 6,
+                                                },
                                             }}
                                         >
-                                            {remaining <= 0 ? "FULL" : "OPEN"}
-                                        </TableCell>
-                                        <TableCell sx={{ color: "black", border: `2px solid ${borderColor}`, textAlign: "center" }}>
-                                            <Button
-                                                variant="contained"
-                                                size="small"
+                                            {/* HEADER */}
+                                            <Box
                                                 sx={{
-                                                    backgroundColor: "green",
+                                                    backgroundColor:
+                                                        remaining <= 0
+                                                            ? "#d32f2f"       // red when full
+                                                            : "#388e3c",      // green when slots are available
                                                     color: "white",
-
-
-                                                }}
-                                                onClick={() => {
-                                                    setSelectedProgram(row.program_id);
-                                                    setMaxSlots(row.max_slots);
-                                                    setIsEditing(true);
+                                                    px: 2,
+                                                    py: 1.5,
+                                                    minHeight: 76,
                                                 }}
                                             >
-                                                Edit
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
+
+                                                <Typography fontWeight={600} fontSize={14} lineHeight={1.3}>
+                                                    ({row.program_code}) {row.program_description}
+                                                </Typography>
+                                                <Typography fontSize={12} opacity={0.9} noWrap>
+                                                    {row.major}
+                                                </Typography>
+                                            </Box>
+
+                                            {/* BODY */}
+                                            <CardContent sx={{ flex: 1 }}>
+                                                <Typography fontSize={28} fontWeight={700}>
+                                                    {remaining}
+                                                </Typography>
+                                                <Typography fontSize={20}>
+                                                    <strong>Max Slots:</strong> {row.max_slots}
+                                                </Typography>
+                                                <Typography fontSize={13}>
+                                                    <strong>Applicants:</strong> {row.total_applicants}
+                                                </Typography>
+                                                <Typography fontSize={13} mb={1}>
+                                                    <strong>Remaining:</strong> {remaining}
+                                                </Typography>
+
+                                                <br />
+
+                                                <LinearProgress
+                                                    variant="determinate"
+                                                    value={percentage}
+                                                    sx={{
+                                                        height: 8,
+                                                        borderRadius: 4,
+                                                        backgroundColor: "#eee",
+                                                        "& .MuiLinearProgress-bar": {
+                                                            backgroundColor:
+                                                                remaining <= 0
+                                                                    ? "#d32f2f"
+                                                                    : percentage >= 70
+                                                                        ? "#f57c00"
+                                                                        : "#388e3c",
+                                                        },
+                                                    }}
+                                                />
+
+                                                {/* FOOTER */}
+                                                <Box
+                                                    sx={{
+                                                        mt: "auto",
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        mt: 4
+                                                    }}
+                                                >
+                                                    <Chip
+                                                        size="medium"
+                                                        sx={{ width: "100px", height: "40px" }}
+                                                        label={remaining <= 0 ? "FULL" : "OPEN"}
+                                                        color={remaining <= 0 ? "error" : "success"}
+                                                    />
+
+                                                    <Button
+                                                        size="small"
+                                                        variant="contained"
+                                                        sx={{ backgroundColor: "green", color: "white", width: "100px", height: "35px" }}
+                                                        onClick={() => {
+                                                            setSelectedProgram(row.program_id);
+                                                            setMaxSlots(row.max_slots);
+                                                            setIsEditing(true);
+                                                        }}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                </Box>
+                                            </CardContent>
+                                        </Card>
+
+                                    </Grid>
                                 );
                             })}
-                    </TableBody>
-                </Table>
-            </Paper>
+                    </Grid>
+                </Box>
+            ))}
+
         </Box>
     );
 };

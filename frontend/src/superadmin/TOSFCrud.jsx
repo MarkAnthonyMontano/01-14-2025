@@ -239,17 +239,7 @@ const TOSF = () => {
 
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
-        backgroundColor: "transparent",
-        paddingRight: "20px",   // only right spacing
-        boxSizing: "border-box",
-         ml: 2
-      }}
-    >
-
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <Box
         sx={{
           display: "flex",

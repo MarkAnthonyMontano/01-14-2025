@@ -248,7 +248,7 @@ const settings = useContext(SettingsContext);
 
     
   return (
-    <Box sx={{ ml: '-2rem', paddingRight: 8, height: "calc(100vh - 150px)", overflowY: "auto", marginLeft: '-2rem' }}>
+       <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
    <Box
           sx={{
             display: 'flex',

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import { SettingsContext } from "../App";
 import axios from "axios";
-import { Box, Typography, Snackbar, Alert } from "@mui/material";
+import { Box, Typography, Snackbar, Alert, TextField } from "@mui/material";
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
+import SearchIcon from "@mui/icons-material/Search";
 const YearPanel = () => {
   const settings = useContext(SettingsContext);
 
@@ -92,6 +93,13 @@ const YearPanel = () => {
     }
   };
 
+  const [yearSearchQuery, setYearSearchQuery] = useState("");
+
+  const filteredYears = years.filter((year) =>
+    String(year.year_description).includes(yearSearchQuery)
+  );
+
+
   const handleCloseSnackbar = () => setSnackbar((prev) => ({ ...prev, open: false }));
 
   // 🔒 Disable Right-Click & DevTools
@@ -116,15 +124,36 @@ const YearPanel = () => {
     };
   }, []);
 
-  if (loading || hasAccess === null)return <LoadingOverlay open={loading} message="Loading..." />;
+  if (loading || hasAccess === null) return <LoadingOverlay open={loading} message="Loading..." />;
   if (!hasAccess) return <Unauthorized />;
 
   return (
-    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1 }}>
-      {/* Header */}
-      <Typography variant="h4" sx={{ fontWeight: "bold", color: titleColor, mb: 2, fontSize: "36px" }}>
-        YEAR PANEL
-      </Typography>
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', mb: 2 }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: titleColor, mb: 2, fontSize: "36px" }}>
+          YEAR PANEL
+        </Typography>
+
+
+        <TextField
+          variant="outlined"
+          placeholder="Search Year..."
+          size="small"
+          value={yearSearchQuery}
+          onChange={(e) => setYearSearchQuery(e.target.value)}
+          sx={{
+            width: 450,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
+      </Box>
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
       <br />
 
@@ -186,7 +215,7 @@ const YearPanel = () => {
           </button>
         </Box>
 
-        {/* Table Card */}
+       
         <Box
           sx={{
             flex: 1,
@@ -195,11 +224,15 @@ const YearPanel = () => {
             backgroundColor: "#fff",
             boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
             p: 3,
+            maxHeight: 750, overflowY: "auto"
           }}
         >
           <Typography sx={{ color: subtitleColor, fontWeight: "bold", mb: 2, fontSize: "18px" }}>
             Saved Years
           </Typography>
+
+
+
           <table
             className="w-full border border-gray-300"
             style={{
@@ -216,8 +249,9 @@ const YearPanel = () => {
               </tr>
             </thead>
             <tbody>
-              {years.length > 0 ? (
-                years.map((year) => (
+              {filteredYears.length > 0 ? (
+                filteredYears.map((year) => (
+
                   <tr
                     key={year.year_id}
                     style={{

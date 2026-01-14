@@ -425,8 +425,7 @@ const MedicalCertificate = () => {
 
 
     return (
-        <Box sx={{ height: 'calc(100vh - 150px)', overflowY: 'auto', pr: 1, }}>
-            {/* Header with Search aligned right */}
+         <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>     {/* Header with Search aligned right */}
             <Box
                 sx={{
                     display: 'flex',

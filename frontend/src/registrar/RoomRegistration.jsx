@@ -31,6 +31,7 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import KeyIcon from "@mui/icons-material/Key";
 import CampaignIcon from '@mui/icons-material/Campaign';
 import { useNavigate } from "react-router-dom";
+import SearchIcon from "@mui/icons-material/Search";
 
 const RoomRegistration = () => {
   const settings = useContext(SettingsContext);
@@ -182,70 +183,81 @@ const RoomRegistration = () => {
   }, []);
 
   // 🔹 Add new room
- const handleAddRoom = async () => {
-  if (!roomName.trim() || !buildingName.trim()) {
-    setSnack({
-      open: true,
-      message: "Room name and building name are required",
-      severity: "warning",
-    });
-    return;
-  }
+  const handleAddRoom = async () => {
+    if (!roomName.trim() || !buildingName.trim()) {
+      setSnack({
+        open: true,
+        message: "Room name and building name are required",
+        severity: "warning",
+      });
+      return;
+    }
 
-  try {
-    await axios.post(`${API_BASE_URL}/room`, {
-      room_name: roomName,
-      building_name: buildingName,
-    });
+    try {
+      await axios.post(`${API_BASE_URL}/room`, {
+        room_name: roomName,
+        building_name: buildingName,
+      });
 
-    setSnack({
-      open: true,
-      message: "Room successfully added",
-      severity: "success",
-    });
-    setRoomName("");
-    setBuildingName("");
-    fetchRoomList();
-  } catch (err) {
-    console.error("Error adding room:", err);
+      setSnack({
+        open: true,
+        message: "Room successfully added",
+        severity: "success",
+      });
+      setRoomName("");
+      setBuildingName("");
+      fetchRoomList();
+    } catch (err) {
+      console.error("Error adding room:", err);
 
-    setSnack({
-      open: true,
-      message: err.response?.data?.message || "Failed to add room",
-      severity: "error",
-    });
-  }
-};
+      setSnack({
+        open: true,
+        message: err.response?.data?.message || "Failed to add room",
+        severity: "error",
+      });
+    }
+  };
 
-// Update room
-const handleUpdateRoom = async () => {
-  if (!editingRoom) return;
+  // 🔹 Add search state
+  const [searchQuery, setSearchQuery] = useState("");
 
-  try {
-    await axios.put(`${API_BASE_URL}/room/${editingRoom.room_id}`, {
-      building_name: buildingName,
-      room_name: roomName,
-    });
+  // 🔹 Filtered rooms based on search
+  const filteredRooms = roomList.filter(
+    (room) =>
+      room.room_description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (room.building_description || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    setSnack({
-      open: true,
-      message: "Room updated successfully",
-      severity: "success",
-    });
-    setEditingRoom(null);
-    setBuildingName("");
-    setRoomName("");
-    fetchRoomList();
-  } catch (err) {
-    console.error("Error updating room:", err);
 
-    setSnack({
-      open: true,
-      message: err.response?.data?.message || "Failed to update room",
-      severity: "error",
-    });
-  }
-};
+  // Update room
+  const handleUpdateRoom = async () => {
+    if (!editingRoom) return;
+
+    try {
+      await axios.put(`${API_BASE_URL}/room/${editingRoom.room_id}`, {
+        building_name: buildingName,
+        room_name: roomName,
+      });
+
+      setSnack({
+        open: true,
+        message: "Room updated successfully",
+        severity: "success",
+      });
+      setEditingRoom(null);
+      setBuildingName("");
+      setRoomName("");
+      fetchRoomList();
+    } catch (err) {
+      console.error("Error updating room:", err);
+
+      setSnack({
+        open: true,
+        message: err.response?.data?.message || "Failed to update room",
+        severity: "error",
+      });
+    }
+  };
 
   // 🔹 Edit room
   const handleEditRoom = (room) => {
@@ -309,7 +321,7 @@ const handleUpdateRoom = async () => {
 
   // 🔹 Loading / Unauthorized states
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -317,24 +329,9 @@ const handleUpdateRoom = async () => {
   }
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
-        paddingRight: 1,
-        backgroundColor: "transparent",
-      }}
-    >
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          mb: 2,
-        }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', mb: 2 }}>
         <Typography
           variant="h4"
           sx={{
@@ -345,6 +342,28 @@ const handleUpdateRoom = async () => {
         >
           ROOM REGISTRATION
         </Typography>
+
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search by Room or Building..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{
+            width: 450,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            mb: 2,
+            mt: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
+
       </Box>
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
 
@@ -459,10 +478,12 @@ const handleUpdateRoom = async () => {
               Registered Rooms
             </Typography>
 
-            <Box sx={{ maxHeight: 400, overflowY: "auto" }}>
+            {/* 🔍 Search bar */}
+
+            <Box sx={{ maxHeight: 750, overflowY: "auto" }}>
               <Table stickyHeader size="small">
-                <TableHead >
-                  <TableRow >
+                <TableHead>
+                  <TableRow>
                     <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Room ID</TableCell>
                     <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Building</TableCell>
                     <TableCell sx={{ border: `2px solid ${borderColor}`, backgroundColor: settings?.header_color || "#1976d2", color: "#fff" }}>Room Name</TableCell>
@@ -470,7 +491,7 @@ const handleUpdateRoom = async () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {roomList.map((room, index) => (
+                  {filteredRooms.length > 0 ? filteredRooms.map((room, index) => (
                     <TableRow key={index}>
                       <TableCell sx={{ border: `2px solid ${borderColor}` }}>{room.room_id}</TableCell>
                       <TableCell sx={{ border: `2px solid ${borderColor}` }}>{room.building_description || "N/A"}</TableCell>
@@ -479,12 +500,7 @@ const handleUpdateRoom = async () => {
                         <Button
                           variant="contained"
                           size="small"
-                          sx={{
-                            backgroundColor: "green",
-                            color: "white",
-                            mr: 1,
-
-                          }}
+                          sx={{ backgroundColor: "green", color: "white", mr: 1 }}
                           onClick={() => handleEditRoom(room)}
                         >
                           Edit
@@ -492,22 +508,25 @@ const handleUpdateRoom = async () => {
                         <Button
                           variant="contained"
                           size="small"
-                          sx={{
-                            backgroundColor: "#9E0000",
-                            color: "white",
-                          }}
+                          sx={{ backgroundColor: "#9E0000", color: "white" }}
                           onClick={() => handleDeleteRoom(room.room_id)}
                         >
                           Delete
                         </Button>
-
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={4} sx={{ textAlign: "center", padding: 2, color: "#777" }}>
+                        No rooms found.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </Box>
           </Paper>
+
         </Grid>
       </Grid>
 

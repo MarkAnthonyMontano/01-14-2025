@@ -7,6 +7,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Unauthorized from "../components/Unauthorized";
 import LoadingOverlay from "../components/LoadingOverlay";
 import API_BASE_URL from "../apiConfig";
+import { TextField, InputAdornment } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+
+
+
 const ProgramTagging = () => {
   const settings = useContext(SettingsContext);
   const [titleColor, setTitleColor] = useState("#000000");
@@ -116,7 +121,21 @@ const ProgramTagging = () => {
   const [curriculumList, setCurriculumList] = useState([]);
   const [taggedPrograms, setTaggedPrograms] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [courseSearch, setCourseSearch] = useState("");
+
+  const filteredTaggedPrograms = taggedPrograms.filter((program) => {
+    const q = searchQuery.toLowerCase();
+
+    return (
+      program.curriculum_description?.toLowerCase().includes(q) ||
+      program.program_code?.toLowerCase().includes(q) ||
+      program.major?.toLowerCase().includes(q) ||
+      program.course_description?.toLowerCase().includes(q) ||
+      program.year_level_description?.toLowerCase().includes(q) ||
+      program.semester_description?.toLowerCase().includes(q)
+    );
+  });
 
   const filteredCourses = courseList.filter((course) => {
     const words = courseSearch.toLowerCase().split(" ");
@@ -305,7 +324,7 @@ const ProgramTagging = () => {
 
 
   if (loading || hasAccess === null) {
-   return <LoadingOverlay open={loading} message="Loading..." />;
+    return <LoadingOverlay open={loading} message="Loading..." />;
   }
 
   if (!hasAccess) {
@@ -313,7 +332,7 @@ const ProgramTagging = () => {
   }
 
   return (
-    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1 }}>
+    <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       <Box
         sx={{
           display: "flex",
@@ -328,6 +347,29 @@ const ProgramTagging = () => {
         >
           PROGRAM AND COURSE MANAGEMENT
         </Typography>
+
+        <TextField
+          variant="outlined"
+          placeholder="Search Curriculum / Course / Year / Semester"
+          size="small"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+          }}
+          sx={{
+            width: 450,
+            backgroundColor: "#fff",
+            borderRadius: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+            },
+          }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+          }}
+        />
+
+
       </Box>
 
       <hr style={{ border: "1px solid #ccc", width: "100%" }} />
@@ -501,7 +543,8 @@ const ProgramTagging = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {taggedPrograms.map((program) => (
+                  {filteredTaggedPrograms.map((program) => (
+
                     <tr key={program.program_tagging_id}>
                       <td style={{ ...styles.td, border: `2px solid ${borderColor}` }}>
                         {program.curriculum_description}     ({program.program_code})        {program.major}
@@ -608,7 +651,7 @@ const styles = {
     gap: "30px",
     width: "95%",
     margin: "30px auto",
-    maxHeight: "600px",
+    maxHeight: "750px",
   },
   formSection: {
     flex: "1",
@@ -616,7 +659,7 @@ const styles = {
     padding: "25px",
     borderRadius: "10px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    maxHeight: "600px",
+    maxHeight: "750px",
     minWidth: "48%",
   },
   displaySection: {
@@ -625,7 +668,7 @@ const styles = {
     padding: "25px",
     borderRadius: "10px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    maxHeight: "600px",
+    maxHeight: "750px",
     minWidth: "48%",
     overflowY: "auto",
   },
@@ -645,14 +688,15 @@ const styles = {
     border: "1px solid #ccc",
   },
   taggedProgramsContainer: {
-    overflowY: "auto",
-    maxHeight: "500px",
+
+    maxHeight: "750px",
     marginTop: "10px",
   },
   table: {
     width: "100%",
     borderCollapse: "collapse",
     textAlign: "left",
+
   },
   th: {
     padding: "12px",

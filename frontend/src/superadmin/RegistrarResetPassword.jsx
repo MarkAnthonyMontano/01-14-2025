@@ -247,13 +247,7 @@ const RegistrarResetPassword = () => {
   }
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 150px)",
-        overflowY: "auto",
-        backgroundColor: "transparent",
-      }}
-    >
+      <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
       {/* 🔝 Header Section */}
       <Box
         sx={{

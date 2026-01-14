@@ -496,6 +496,7 @@ const Dashboard = ({ profileImage, setProfileImage }) => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         position: "relative",
+        mt: 2
       }}
     >
       {/* Overlay */}
